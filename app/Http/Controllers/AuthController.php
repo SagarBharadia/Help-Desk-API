@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use Illuminate\Support\Facades\Auth;
+
 
 class AuthController extends Controller
 {
@@ -21,7 +23,8 @@ class AuthController extends Controller
      * Store a new user.
      *
      * @param Request $request
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function register(Request $request)
     {
@@ -52,4 +55,27 @@ class AuthController extends Controller
             return response()->json(['message' => 'User registration failed!'], 409);
         }
     }
+
+    public function login(Request $request)
+    {
+        // validate the request
+        $this->validate($request, [
+          'email_address' => 'required|string',
+          'password' => 'required|string'
+        ]);
+
+        $credentials = $request->only(['email_address', 'password']);
+
+        // Attempting to login
+        if(! $token = Auth::attempt($credentials)) {
+            $response =  response()->json(['message' => 'Unauthorized.'], 401);
+        } else {
+            $response = $this->respondWithToken($token);
+        }
+
+        // Else return with token
+        return $response;
+
+    }
+
 }
