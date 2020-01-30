@@ -17,8 +17,10 @@ $router->get('/', function () use ($router) {
 
 $router->group(['prefix' => 'super/api'], function () use ($router) {
     // Matches /super/api/register
-    $router->post('register', 'AuthController@register');
+    $router->post('register', 'GlobalAuthController@register');
     // Matches /super/api/login
-    $router->post('login', 'AuthController@login');
+    $router->post('login', 'GlobalAuthController@login');
+    // Matches /super/api/create/tenant
+    $router->post('create/tenant', 'GlobalTenantController@create');
 });
 

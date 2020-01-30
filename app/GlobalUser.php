@@ -27,7 +27,7 @@ class GlobalUser extends Model implements AuthenticatableContract, AuthorizableC
      * @var array
      */
     protected $fillable = [
-        'name', 'email',
+        'first_name', 'second_name', "email_address", "role_id"
     ];
 
     /**
@@ -45,6 +45,16 @@ class GlobalUser extends Model implements AuthenticatableContract, AuthorizableC
      * @var string
      */
     protected $connection = "global";
+
+    /**
+     * Retrieves the role of the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo|mixed
+     */
+    public function role()
+    {
+        return $this->belongsTo('App\GlobalRole');
+    }
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.

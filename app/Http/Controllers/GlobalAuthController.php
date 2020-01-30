@@ -7,7 +7,7 @@ use App\GlobalUser;
 use Illuminate\Support\Facades\Auth;
 
 
-class AuthController extends Controller
+class GlobalAuthController extends Controller
 {
     /**
      * Create a new controller instance.

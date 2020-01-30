@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCompanyDatabasesTable extends Migration
+class CreateGlobalUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,13 @@ class CreateCompanyDatabasesTable extends Migration
      */
     public function up()
     {
-        Schema::connection('global')->create('company_databases', function (Blueprint $table) {
+        Schema::connection('global')->create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('company_name');
-            $table->string('company_database_name')->unique();
-            $table->string('company_url_subdirectory')->unique();
+            $table->integer('role_id')->default(2);
+            $table->string('first_name');
+            $table->string('second_name');
+            $table->string('email_address')->unique();
+            $table->string('password');
             $table->timestamps();
         });
     }
@@ -29,6 +31,6 @@ class CreateCompanyDatabasesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('company_databases');
+        Schema::connection('global')->dropIfExists('users');
     }
 }
