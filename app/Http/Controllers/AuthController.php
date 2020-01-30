@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\User;
+use App\GlobalUser;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -38,7 +38,7 @@ class AuthController extends Controller
 
         try
         {
-            $user = new User;
+            $user = new GlobalUser;
             $user->first_name = $request->input('first_name');
             $user->second_name = $request->input('second_name');
             $user->email_address = $request->input('email_address');
@@ -52,7 +52,7 @@ class AuthController extends Controller
         } catch (\Exception $e)
         {
             // return error message
-            return response()->json(['message' => 'User registration failed!'], 409);
+            return response()->json(['message' => 'Global user registration failed!'], 409);
         }
     }
 

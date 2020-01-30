@@ -15,10 +15,10 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group(['prefix' => 'api'], function () use ($router) {
-    // Matches /api/register
+$router->group(['prefix' => 'super/api'], function () use ($router) {
+    // Matches /super/api/register
     $router->post('register', 'AuthController@register');
-
-    // Matches /api/login
+    // Matches /super/api/login
     $router->post('login', 'AuthController@login');
 });
+
