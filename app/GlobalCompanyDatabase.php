@@ -12,4 +12,14 @@ class GlobalCompanyDatabase extends Model
      * @var string
      */
     protected $connection = 'global';
+
+    /**
+     * Get's the global user that created this company as a tenant.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function createdBy()
+    {
+        return $this->belongsTo('App\User');
+    }
 }

@@ -57,6 +57,16 @@ class GlobalUser extends Model implements AuthenticatableContract, AuthorizableC
     }
 
     /**
+     * Get's the global companies the user has created.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function companiesCreated()
+    {
+        return $this->hasMany('App\GlobalCompanyDatabase');
+    }
+
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed

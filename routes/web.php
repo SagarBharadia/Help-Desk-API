@@ -15,12 +15,24 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group(['prefix' => 'super/api'], function () use ($router) {
-    // Matches /super/api/register
-    $router->post('register', 'GlobalAuthController@register');
+// Unauthenticated /super/api/ routes
+$router->group([
+  'prefix' => 'super/api'
+], function () use ($router) {
     // Matches /super/api/login
     $router->post('login', 'GlobalAuthController@login');
+    // Matches /super/api/register
+    $router->post('register', 'GlobalAuthController@register');
+});
+
+// Authenticated /super/api/ routes
+$router->group([
+  'prefix' => 'super/api',
+  'middleware' => [
+    'auth:global_api'
+  ]
+], function () use ($router) {
     // Matches /super/api/create/tenant
-    $router->post('create/tenant', 'GlobalTenantController@create');
+    $router->post('create/tenant', 'GlobalCompanyController@create');
 });
 

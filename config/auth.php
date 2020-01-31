@@ -2,19 +2,19 @@
 
 return [
     'defaults' => [
-        'guard' => 'api',
+        'guard' => 'global_api',
         'passwords' => 'users',
     ],
 
     'guards' => [
-        'api' => [
+        'global_api' => [
             'driver' => 'jwt',
-            'provider' => 'users',
-        ],
+            'provider' => 'global_users',
+        ]
     ],
 
     'providers' => [
-        'users' => [
+        'global_users' => [
             'driver' => 'eloquent',
             'model' => \App\GlobalUser::class
         ]

@@ -15,6 +15,7 @@ class CreateGlobalCompanyDatabasesTable extends Migration
     {
         Schema::connection('global')->create('company_databases', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->integer('global_user_id');
             $table->string('company_name');
             $table->string('company_database_name')->unique();
             $table->string('company_url_subdirectory')->unique();

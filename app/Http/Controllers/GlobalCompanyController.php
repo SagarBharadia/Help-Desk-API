@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class GlobalTenantController extends Controller
+class GlobalCompanyController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -18,6 +18,6 @@ class GlobalTenantController extends Controller
 
     public function create(Request $request)
     {
-        
+
     }
 }
