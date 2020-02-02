@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\GlobalUser;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 
 class GlobalAuthController extends Controller
@@ -43,7 +44,7 @@ class GlobalAuthController extends Controller
             $user->second_name = $request->input('second_name');
             $user->email_address = $request->input('email_address');
             $plainPassword = $request->input('password');
-            $user->password = app('hash')->make($plainPassword);
+            $user->password = Hash::make($plainPassword);
 
             $user->save();
 
