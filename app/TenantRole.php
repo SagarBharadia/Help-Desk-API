@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GlobalRole extends Model
+class TenantRole extends Model
 {
     /**
      * The table name the model should use.
@@ -18,7 +18,7 @@ class GlobalRole extends Model
      *
      * @var string
      */
-    protected $connection = "global";
+    protected $connection = "tenant";
 
     /**
      * Function to return which global users have this role.
@@ -27,18 +27,16 @@ class GlobalRole extends Model
      */
     public function users()
     {
-        return $this->hasMany('App\GlobalUser');
+        return $this->hasMany('App\TenantUser');
     }
 
     /**
-     * Function to see if the role of the user is that of requested.
+     * Function to see if the users role is that of the one specified.
      *
-     * @param string $roleToCheck
      * @return bool
      */
     public function isRole(string $roleToCheck)
     {
         return ($this->name == $roleToCheck);
     }
-
 }

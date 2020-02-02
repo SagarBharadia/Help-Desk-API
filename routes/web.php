@@ -29,7 +29,8 @@ $router->group([
 $router->group([
   'prefix' => 'super/api',
   'middleware' => [
-    'auth:global_api'
+    'auth:global_api',
+    'role:super'
   ]
 ], function () use ($router) {
     // Matches /super/api/create/tenant

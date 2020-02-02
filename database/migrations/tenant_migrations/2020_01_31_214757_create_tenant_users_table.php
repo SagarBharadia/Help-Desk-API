@@ -15,10 +15,10 @@ class CreateTenantUsersTable extends Migration
     {
         Schema::connection('tenant')->create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('role_id');
+            $table->integer('role_id')->default(2);
             $table->string('first_name');
             $table->string('second_name');
-            $table->string('email_address');
+            $table->string('email_address')->unique();
             $table->string('password');
             $table->timestamps();
         });

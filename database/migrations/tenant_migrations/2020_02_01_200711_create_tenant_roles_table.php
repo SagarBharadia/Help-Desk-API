@@ -17,18 +17,21 @@ class CreateTenantRolesTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->string('display_name');
+            $table->boolean('protected_role');
             $table->timestamps();
         });
         DB::table('roles')->insert([
           [
             'id' => 1,
             'name' => 'master',
-            'display_name' => 'Master'
+            'display_name' => 'Master',
+            'protected_role' => true
           ],
           [
             'id' => 2,
             'name' => 'user',
-            'display_name' => 'User'
+            'display_name' => 'User',
+            'protected_role' => true
           ]
 
         ]);

@@ -1,8 +1,5 @@
 <?php
 
-
-use Illuminate\Support\Facades\App;
-
 if (!function_exists('addConnectionByName'))
 {
     /**
