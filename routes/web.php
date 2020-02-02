@@ -37,3 +37,12 @@ $router->group([
     $router->post('create/tenant', 'GlobalCompanyController@create');
 });
 
+// Unauthenticated tenant routes
+$router->group([
+  'prefix' => '{company_subdirectory}/api',
+  'middleware' => [
+    'addTenantConnection',
+  ]
+], function () use ($router) {
+    $router->post('login', 'TenantAuthController@login');
+});

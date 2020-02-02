@@ -63,7 +63,8 @@ $app->singleton(
 
  $app->routeMiddleware([
      'auth' => \App\Http\Middleware\Authenticate::class,
-     'role' => \App\Http\Middleware\RoleMiddleware::class
+     'role' => \App\Http\Middleware\RoleMiddleware::class,
+     'addTenantConnection' => \App\Http\Middleware\AddTenantConnectionMiddleware::class
  ]);
 
 /*

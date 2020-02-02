@@ -57,6 +57,13 @@ class GlobalAuthController extends Controller
         }
     }
 
+    /**
+     * Attempting to login.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function login(Request $request)
     {
         // validate the request
@@ -68,7 +75,7 @@ class GlobalAuthController extends Controller
         $credentials = $request->only(['email_address', 'password']);
 
         // Attempting to login
-        if(! $token = Auth::attempt($credentials)) {
+        if(! $token = Auth::guard('global_api')->attempt($credentials)) {
             $response =  response()->json(['message' => 'Unauthorized.'], 401);
         } else {
             $response = $this->respondWithToken($token);
