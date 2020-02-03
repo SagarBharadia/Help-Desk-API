@@ -13,7 +13,7 @@ class CreateTenantEmailConfirmationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('email_confirmations', function (Blueprint $table) {
+        Schema::connection('tenant')->create('email_confirmations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('user_id');
             $table->string('confirmation_token');
@@ -29,6 +29,6 @@ class CreateTenantEmailConfirmationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('email_confirmations');
+        Schema::connection('tenant')->dropIfExists('email_confirmations');
     }
 }

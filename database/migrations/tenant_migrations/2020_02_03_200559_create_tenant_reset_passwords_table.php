@@ -13,7 +13,7 @@ class CreateTenantResetPasswordsTable extends Migration
      */
     public function up()
     {
-        Schema::create('reset_passwords', function (Blueprint $table) {
+        Schema::connection('tenant')->create('reset_passwords', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('user_id');
             $table->string('reset_token');
@@ -29,6 +29,6 @@ class CreateTenantResetPasswordsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('reset_passwords');
+        Schema::connection('tenant')->dropIfExists('reset_passwords');
     }
 }
