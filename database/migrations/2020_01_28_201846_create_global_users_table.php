@@ -15,7 +15,7 @@ class CreateGlobalUsersTable extends Migration
     {
         Schema::connection('global')->create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('role_id')->default(2);
+            $table->bigInteger('role_id')->default(2);
             $table->string('first_name');
             $table->string('second_name');
             $table->string('email_address')->unique();

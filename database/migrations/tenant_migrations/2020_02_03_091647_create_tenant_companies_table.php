@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTenantUsersTable extends Migration
+class CreateTenantCompaniesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,14 @@ class CreateTenantUsersTable extends Migration
      */
     public function up()
     {
-        Schema::connection('tenant')->create('users', function (Blueprint $table) {
+        Schema::connection('tenant')->create('companies', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('role_id')->default(2);
-            $table->string('first_name');
-            $table->string('second_name');
-            $table->string('email_address')->unique();
-            $table->string('password');
+            $table->bigInteger('created_by');
+            $table->string('name');
+            $table->string('email_address');
+            $table->string('phone_number');
             $table->timestamps();
         });
-
     }
 
     /**
@@ -32,6 +30,6 @@ class CreateTenantUsersTable extends Migration
      */
     public function down()
     {
-        Schema::connection('tenant')->dropIfExists('users');
+        Schema::connection('tenant')->dropIfExists('companies');
     }
 }
