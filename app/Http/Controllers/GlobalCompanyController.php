@@ -101,7 +101,7 @@ class GlobalCompanyController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            $response = response()->json(['message' => 'Transaction error. Please try again.', 'e' => $e], 500);
+            $response = response()->json(['message' => 'Transaction error. Please try again.'], 500);
         }
 
         // Return whether the above steps were successfully carried out or not.
