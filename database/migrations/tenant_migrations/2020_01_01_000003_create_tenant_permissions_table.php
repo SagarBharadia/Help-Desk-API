@@ -15,9 +15,16 @@ class CreateTenantPermissionsTable extends Migration
     {
         Schema::connection('tenant')->create('permissions', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('permission_action_id');
-            $table->bigInteger('role_id');
+            $table->unsignedBigInteger('permission_action_id');
+            $table->unsignedBigInteger('role_id');
             $table->timestamps();
+
+
+        });
+
+        Schema::connection('tenant')->table('permissions', function(Blueprint $table) {
+            $table->foreign('permission_action_id')->references('id')->on('permission_actions');
+            $table->foreign('role_id')->references('id')->on('roles');
         });
     }
 

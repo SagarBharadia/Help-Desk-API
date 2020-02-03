@@ -15,11 +15,16 @@ class CreateTenantCompaniesTable extends Migration
     {
         Schema::connection('tenant')->create('companies', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('created_by');
+            $table->unsignedBigInteger('created_by');
             $table->string('name');
             $table->string('email_address');
             $table->string('phone_number');
             $table->timestamps();
+
+        });
+
+        Schema::connection('tenant')->table('companies', function(Blueprint $table) {
+            $table->foreign('created_by')->references('id')->on('users');
         });
     }
 

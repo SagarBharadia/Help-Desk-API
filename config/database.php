@@ -6,6 +6,7 @@ return [
   'connections' => [
     'global' => [
       'driver' => 'mysql',
+      'engine' => 'InnoDB',
       'host' => env('DB_HOST'),
       'database' => env('GLOBAL_DATABASE'),
       'username' => env('GLOBAL_USERNAME'),

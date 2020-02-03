@@ -15,11 +15,17 @@ class CreateTenantReportsTable extends Migration
     {
         Schema::connection('tenant')->create('reports', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('created_by');
+            $table->unsignedBigInteger('created_by');
             $table->string('name');
             $table->text('description');
             $table->string('filename');
             $table->timestamps();
+
+
+        });
+
+        Schema::connection('tenant')->table('reports', function(Blueprint $table) {
+            $table->foreign('created_by')->references('id')->on('users');
         });
     }
 

@@ -15,12 +15,16 @@ class CreateTenantUsersTable extends Migration
     {
         Schema::connection('tenant')->create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('role_id')->default(2);
+            $table->unsignedBigInteger('role_id')->default(2);
             $table->string('first_name');
             $table->string('second_name');
             $table->string('email_address')->unique();
             $table->string('password');
             $table->timestamps();
+        });
+
+        Schema::connection('tenant')->table('users', function(Blueprint $table) {
+            $table->foreign('role_id')->references('id')->on('roles');
         });
 
     }

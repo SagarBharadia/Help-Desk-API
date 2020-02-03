@@ -15,10 +15,15 @@ class CreateTenantResetPasswordsTable extends Migration
     {
         Schema::connection('tenant')->create('reset_passwords', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('user_id');
+            $table->unsignedBigInteger('user_id');
             $table->string('reset_token');
             $table->boolean('used');
             $table->timestamps();
+
+        });
+
+        Schema::connection('tenant')->table('reset_passwords', function(Blueprint $table) {
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

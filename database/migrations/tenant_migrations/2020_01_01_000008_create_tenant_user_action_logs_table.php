@@ -15,10 +15,17 @@ class CreateTenantUserActionLogsTable extends Migration
     {
         Schema::connection('tenant')->create('user_action_logs', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('user_id');
-            $table->bigInteger('log_action_id');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('log_action_id');
             $table->text('details');
             $table->timestamps();
+
+
+        });
+
+        Schema::connection('tenant')->table('user_action_logs', function(Blueprint $table) {
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('log_action_id')->references('id')->on('log_actions');
         });
     }
 

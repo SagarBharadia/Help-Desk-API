@@ -15,10 +15,17 @@ class CreateTenantCallUpdatesTable extends Migration
     {
         Schema::connection('tenant')->create('call_updates', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('call_id');
-            $table->bigInteger('user_id');
+            $table->unsignedBigInteger('call_id');
+            $table->unsignedBigInteger('user_id');
             $table->text('details');
             $table->timestamps();
+
+
+        });
+
+        Schema::connection('tenant')->table('call_updates', function(Blueprint $table) {
+            $table->foreign('call_id')->references('id')->on('calls');
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 
