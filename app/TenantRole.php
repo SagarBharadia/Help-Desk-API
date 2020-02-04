@@ -39,4 +39,14 @@ class TenantRole extends Model
     {
         return ($this->name == $roleToCheck);
     }
+
+    /**
+     * Get's the permissions for the role.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function permissions()
+    {
+        return $this->hasMany('App\TenantPermission');
+    }
 }
