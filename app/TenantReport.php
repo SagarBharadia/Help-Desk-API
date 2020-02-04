@@ -4,14 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TenantPermissionAction extends Model
+class TenantReport extends Model
 {
     /**
      * The table name the model should use.
      *
      * @var string
      */
-    protected $table = 'permission';
+    protected $table = 'reports';
 
     /**
      * The connection name for the model.
@@ -21,13 +21,12 @@ class TenantPermissionAction extends Model
     protected $connection = "tenant";
 
     /**
-     * Get's the permissions in which this action has been used.
+     * Retrieves the user that created this report.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function permissions()
+    public function createdBy()
     {
-        return $this->hasMany('App\TenantPermission');
+        return $this->belongsTo('App\TenantUser',  'id', 'created_by');
     }
-
 }
