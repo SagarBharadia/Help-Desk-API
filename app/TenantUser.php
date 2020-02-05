@@ -77,6 +77,26 @@ class TenantUser extends Model implements AuthenticatableContract, AuthorizableC
     }
 
     /**
+     * Getting the calls that this user has received.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function receivedCalls()
+    {
+        return $this->hasMany('App\TenantCall', 'receiver_id');
+    }
+
+    /**
+     * Getting the current calls this user is handling.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function currentCalls()
+    {
+        return $this->hasMany('App\TenantCall', 'current_analyst_id');
+    }
+
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed

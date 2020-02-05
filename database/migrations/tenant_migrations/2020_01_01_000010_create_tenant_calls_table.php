@@ -15,10 +15,11 @@ class CreateTenantCallsTable extends Migration
     {
         Schema::connection('tenant')->create('calls', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('caller_name');
-            $table->string('name');
             $table->unsignedBigInteger('receiver_id');
             $table->unsignedBigInteger('current_analyst_id');
+            $table->unsignedBigInteger('company_id');
+            $table->string('caller_name');
+            $table->string('name');
             $table->text('details');
             $table->text('tags');
             $table->boolean('resolved');
@@ -31,6 +32,7 @@ class CreateTenantCallsTable extends Migration
         Schema::connection('tenant')->table('calls', function(Blueprint $table) {
             $table->foreign('receiver_id')->references('id')->on('users');
             $table->foreign('current_analyst_id')->references('id')->on('users');
+            $table->foreign('company_id')->references('id')->on('companies');
         });
     }
 
