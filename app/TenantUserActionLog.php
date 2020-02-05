@@ -4,14 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TenantPermission extends Model
+class TenantUserActionLog extends Model
 {
     /**
      * The table name the model should use.
      *
      * @var string
      */
-    protected $table = 'permissions';
+    protected $table = 'user_action_logs';
 
     /**
      * The connection name for the model.
@@ -21,22 +21,23 @@ class TenantPermission extends Model
     protected $connection = "tenant";
 
     /**
-     * Get's the role in which this permission belongs to.
+     * Get's the action of this user action log.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function role()
+    public function logAction()
     {
-        return $this->belongsTo('App\TenantRole');
+        return $this->belongsTo('App\TenantLogAction');
     }
 
     /**
-     * Get's the action of this permission.
+     * Get's the user of this user action log.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function permissionAction()
+    public function user()
     {
-        return $this->belongsTo('App\TenantPermissionAction');
+        return $this->belongsTo('App\TenantUser');
     }
+
 }

@@ -4,14 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TenantResetPassword extends Model
+class TenantLogAction extends Model
 {
     /**
      * The table name the model should use.
      *
      * @var string
      */
-    protected $table = 'reset_passwords';
+    protected $table = 'log_actions';
 
     /**
      * The connection name for the model.
@@ -21,13 +21,13 @@ class TenantResetPassword extends Model
     protected $connection = "tenant";
 
     /**
-     * Get's the user which this reset password belongs to.
+     * Get's the users which have performed this action.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function user()
+    public function userActionLogs()
     {
-        return $this->belongsTo('App\User');
+        return $this->hasMany('App\UserActionLog');
     }
 
 }
