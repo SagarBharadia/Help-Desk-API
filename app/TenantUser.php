@@ -97,6 +97,16 @@ class TenantUser extends Model implements AuthenticatableContract, AuthorizableC
     }
 
     /**
+     * Getting the call updates this user has performed.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function callUpdates()
+    {
+        return $this->hasMany('App\TenantCallUpdate', 'user_id');
+    }
+
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed

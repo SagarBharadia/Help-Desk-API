@@ -49,4 +49,14 @@ class TenantCall extends Model
     {
         return $this->belongsTo('App\TenantUser', 'id', 'current_analyst_id');
     }
+
+    /**
+     * Getting the updates for this call.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function updates()
+    {
+        return $this->hasMany('App\TenantCallUpdate', 'call_id', 'id');
+    }
 }
