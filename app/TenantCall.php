@@ -20,6 +20,11 @@ class TenantCall extends Model
      */
     protected $connection = "tenant";
 
+    protected $fillable = [
+      'receiver_d', 'current_analyst_id', 'company_id',
+      'caller_name', 'name', 'details', 'tags', 'resolved'
+    ];
+
     /**
      * Getting the company that this call belongs to.
      *

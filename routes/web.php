@@ -46,3 +46,19 @@ $router->group([
 ], function () use ($router) {
     $router->post('login', 'TenantAuthController@login');
 });
+
+// Authenticated tenant routes
+$router->group([
+  'prefix' => '{company_subdirectory}/api',
+  'middleware' => [
+    'addTenantConnection',
+    'auth:tenant_api'
+  ]
+], function () use ($router) {
+    // Group for 'calls' routes
+    $router->group([
+      'prefix' => 'calls'
+    ], function () use ($router) {
+        $router->post('create', 'TenantCallController@create');
+    });
+});
