@@ -1,0 +1,198 @@
+openapi: '3.0.2'
+info:
+  title: Help Desk API
+  version: '1.0'
+servers:
+  - url: http://localhost:8000
+paths:
+  /super/api/login:
+    post:
+      summary: Allows a platform level user to sign in
+      requestBody:
+        required: true
+        content:
+          application/json: 
+            schema:
+              type: object
+              properties:
+                email_address:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: JWT Token
+                  token_type:
+                    type: string
+                    example: bearer
+                  expires_in:
+                    type: integer
+                    example: 3600
+        '401':
+          description: Unsuccessful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized.
+  /super/api/create/tenant:
+    post: 
+      summary: Allows the creation of a new tenant
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: John
+                second_name: 
+                  type: string
+                  example: Smith
+                email_address:
+                  type: string
+                  example: johnsmith@example.com
+                password:
+                  type: string
+                  example: secret123
+                password_confirmation:
+                  type: string
+                  example: secret123
+                company_name:
+                  type: string
+                  example: dfs
+                company_url_subdirectory:
+                  type: string
+                  example: dfs
+      responses:
+        '200':
+          description: Created new tenant successfully
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Company tenant created.
+        '422':
+          description: One of the fields were unable to be validated successfully. 
+            The content will consist of key value pairs where the key is the field that was not validated
+            and the value is the reason why.
+        '500':
+          description: Something went wrong while creating the tenant databases.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unable to perform migration transactions.
+  /{company_subdir}/api/login:
+    post:
+      summary: Allowing the user of a companys help desk to login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email_address:
+                  type: string
+                  example: johnsmith@example.com
+                password:
+                  type: string
+                  example: secret123
+      responses:
+        '200':
+          description: Company's user successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: 
+                    type: string
+                    example: JWT Auth token
+                  token_type:
+                    type: string
+                    example: bearer
+                  expires_in:
+                    type: integer
+                    example: 3600
+        '401':
+          description: Unsuccessful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized.
+  /{company_subdirectory}/api/calls/create:
+    post:
+      summary: Creating a new call
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company_id:
+                  type: integer
+                  example: 22
+                caller_name:
+                  type: string
+                  example: Caroline
+                name:
+                  type: string
+                  example: Issue with logging into our system
+                details:
+                  type: string
+                  example: The customer has attempted to log in and receives the error code E964
+                tags:
+                  type: string
+                  example: logging in, e964
+      responses:
+        '200':
+          description: Call created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Created call successfully.
+        '422':
+          description: One of the fields were unable to be validated successfully. 
+            The content will consist of key value pairs where the key is the field that was not validated
+            and the value is the reason why.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
