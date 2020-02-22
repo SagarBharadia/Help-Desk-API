@@ -46,6 +46,14 @@ class TenantUser extends Model implements AuthenticatableContract, AuthorizableC
      */
     protected $connection = "tenant";
 
+    public function isAllowedTo(string $permission)
+    {
+        $permissionAction = TenantPermissionAction::where('action', $permission)->first();
+        if(empty($permissionAction)) return false;
+        if($this->role->isRole('master')) return true;
+        return $this->role->permissions->contains('permission_action_id', $permissionAction->id);
+    }
+
     /**
      * Retrieves the role of the user.
      *

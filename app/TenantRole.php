@@ -47,6 +47,6 @@ class TenantRole extends Model
      */
     public function permissions()
     {
-        return $this->hasMany('App\TenantPermission');
+        return $this->hasMany("App\TenantPermission", 'role_id', 'id');
     }
 }

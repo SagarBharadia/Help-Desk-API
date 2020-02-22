@@ -27,7 +27,7 @@ class TenantPermission extends Model
      */
     public function role()
     {
-        return $this->belongsTo('App\TenantRole');
+        return $this->belongsTo('App\TenantRole', 'role_id');
     }
 
     /**
@@ -37,6 +37,6 @@ class TenantPermission extends Model
      */
     public function permissionAction()
     {
-        return $this->belongsTo('App\TenantPermissionAction');
+        return $this->belongsTo('App\TenantPermissionAction', 'permission_action_id');
     }
 }

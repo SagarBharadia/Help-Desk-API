@@ -64,7 +64,8 @@ $app->singleton(
  $app->routeMiddleware([
      'auth' => \App\Http\Middleware\Authenticate::class,
      'role' => \App\Http\Middleware\RoleMiddleware::class,
-     'addTenantConnection' => \App\Http\Middleware\AddTenantConnectionMiddleware::class
+     'addTenantConnection' => \App\Http\Middleware\AddTenantConnectionMiddleware::class,
+     'perm' => \App\Http\Middleware\PermissionMiddleware::class
  ]);
 
 /*

@@ -11,7 +11,7 @@ class TenantPermissionAction extends Model
      *
      * @var string
      */
-    protected $table = 'permission';
+    protected $table = 'permission_actions';
 
     /**
      * The connection name for the model.
@@ -27,7 +27,7 @@ class TenantPermissionAction extends Model
      */
     public function permissions()
     {
-        return $this->hasMany('App\TenantPermission');
+        return $this->hasMany('App\TenantPermission', 'permission_action_id');
     }
 
 }

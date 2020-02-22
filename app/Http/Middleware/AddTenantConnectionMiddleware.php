@@ -23,12 +23,12 @@ class AddTenantConnectionMiddleware
         $databaseRecord = GlobalCompanyDatabase::where('company_url_subdirectory', $companySubDirectory)
             ->first();
 
-        // Checking if there is a record
-        if( !empty($databaseRecord) )
-        {
-            // If there is then add it to the connections list
-            addConnectionByName($databaseRecord->company_database_name);
-        }
+        if(empty($databaseRecord)) return response()->json(['message' => 'Not found.'], 404);
+
+        // If there is then add it to the connections list
+        addConnectionByName($databaseRecord->company_database_name);
+        config(['auth.defaults.guard' => 'tenant_api']);
+
         return $next($request);
     }
 }

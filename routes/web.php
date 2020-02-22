@@ -55,10 +55,6 @@ $router->group([
     'auth:tenant_api'
   ]
 ], function () use ($router) {
-    // Group for 'calls' routes
-    $router->group([
-      'prefix' => 'calls'
-    ], function () use ($router) {
-        $router->post('create', 'TenantCallController@create');
-    });
+  // Calls related routes
+  $router->post('calls/create', ['middleware' => 'perm:create-calls', 'uses' => 'TenantCallController@create']);
 });
