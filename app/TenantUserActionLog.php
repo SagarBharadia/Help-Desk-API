@@ -27,7 +27,7 @@ class TenantUserActionLog extends Model
      */
     public function logAction()
     {
-        return $this->belongsTo('App\TenantLogAction');
+        return $this->belongsTo('App\TenantLogAction', 'id', 'log_action_id');
     }
 
     /**
@@ -37,7 +37,7 @@ class TenantUserActionLog extends Model
      */
     public function user()
     {
-        return $this->belongsTo('App\TenantUser');
+        return $this->belongsTo('App\TenantUser', 'id', 'user_id');
     }
 
 }

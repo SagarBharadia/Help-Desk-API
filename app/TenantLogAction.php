@@ -27,7 +27,7 @@ class TenantLogAction extends Model
      */
     public function userActionLogs()
     {
-        return $this->hasMany('App\UserActionLog');
+      return $this->hasMany('App\TenantUserActionLog', 'log_action_id');
     }
 
 }
