@@ -56,7 +56,7 @@ $router->group([
   ]
 ], function () use ($router) {
   // User Related Routes
-//  $router->post('users/create', ['middleware' => 'perm:create-users', 'uses' => 'TenantUserController@create']);
+  $router->post('users/create', ['middleware' => 'perm:create-users', 'uses' => 'TenantUserController@create']);
 //  $router->post('users/update', ['middleware' => 'perm:update-users', 'uses' => 'TenantUserController@update']);
 //  $router->post('users/deactivate', ['middleware' => 'perm:deactivate-users', 'uses' => 'TenantUserController@deactivate']);
 //  $router->post('users/get/all', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getAll']);

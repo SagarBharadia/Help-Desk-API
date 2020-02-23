@@ -51,7 +51,7 @@ class GlobalCompanyController extends Controller
           'first_name' => 'string|required',
           'second_name' => 'string|required',
           'email_address' => 'email|required',
-          'password' => 'string|confirmed'
+          'password' => 'string|confirmed|required'
         ]);
 
         // Getting the plaintext password and encrypted it
@@ -101,6 +101,7 @@ class GlobalCompanyController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            DB::connection('global')->statement("DROP DATABASE ".$request->get('company_database_name').";");
             $response = response()->json(['message' => 'Transaction error. Please try again.'], 500);
         }
 

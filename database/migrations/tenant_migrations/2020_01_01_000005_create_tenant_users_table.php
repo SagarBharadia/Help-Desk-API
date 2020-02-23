@@ -20,6 +20,7 @@ class CreateTenantUsersTable extends Migration
             $table->string('second_name');
             $table->string('email_address')->unique();
             $table->string('password');
+            $table->boolean('active')->default(1);
             $table->timestamps();
         });
 
