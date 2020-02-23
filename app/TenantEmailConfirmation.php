@@ -27,7 +27,7 @@ class TenantEmailConfirmation extends Model
      */
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\TenantUser', 'id', 'user_id');
     }
 
 }

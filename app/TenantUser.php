@@ -115,6 +115,16 @@ class TenantUser extends Model implements AuthenticatableContract, AuthorizableC
     }
 
     /**
+     * Getting the email confirmation object for this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function emailConfirmation()
+    {
+      $this->belongsTo('App\TenantUser', 'user_id');
+    }
+
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed
