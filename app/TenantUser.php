@@ -125,6 +125,16 @@ class TenantUser extends Model implements AuthenticatableContract, AuthorizableC
     }
 
     /**
+     * Returns the reset password record (if available) for this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function resetPassword()
+    {
+      $this->hasOne('App\TenantResetPassword', 'user_id');
+    }
+
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed
