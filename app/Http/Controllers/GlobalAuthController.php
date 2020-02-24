@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Rules\StrongPassword;
 use Illuminate\Http\Request;
 use App\GlobalUser;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,7 @@ class GlobalAuthController extends Controller
             'first_name' => 'required|string',
             'second_name' => 'required|string',
             'email_address' => 'required|email|unique:users',
-            'password' => 'required|confirmed'
+            'password' => ['string', 'required', 'confirmed', new StrongPassword]
         ]);
 
         try

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\GlobalCompanyDatabase;
+use App\Rules\StrongPassword;
 use App\TenantUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -51,7 +52,7 @@ class GlobalCompanyController extends Controller
           'first_name' => 'string|required',
           'second_name' => 'string|required',
           'email_address' => 'email|required',
-          'password' => 'string|confirmed|required'
+          'password' => ['string', 'required', 'confirmed', new StrongPassword]
         ]);
 
         // Getting the plaintext password and encrypted it

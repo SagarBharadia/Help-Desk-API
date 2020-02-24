@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Rules\StrongPassword;
 use App\TenantUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +27,7 @@ class TenantUserController extends Controller
         'first_name' => 'required|string',
         'second_name' => 'required|string',
         'email_address' => 'required|email|unique:users',
-        'password' => 'required|confirmed'
+        'password' => ['string', 'required', 'confirmed', new StrongPassword]
       ]);
 
       $user = new TenantUser();
