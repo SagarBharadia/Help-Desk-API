@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpComposerExtensionStubsInspection */
 
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
@@ -6,12 +6,12 @@ use Laravel\Lumen\Testing\DatabaseTransactions;
 class TenantUserTest extends TestCase
 {
   private $token;
-  private $test_company_subdir;
+  private $api_url;
 
   public function __construct($name = null, array $data = [], $dataName = '')
   {
     parent::__construct($name, $data, $dataName);
-    $this->test_company_subdir = env('TEST_COMPANY_SUBDIR');
+    $this->api_url = '/'.env('TEST_COMPANY_SUBDIR').'/';
   }
 
   public function setUp(): void
@@ -21,9 +21,15 @@ class TenantUserTest extends TestCase
       'email_address' => env('TENANT_MASTER_ACC_EMAIL_ADDRESS'),
       'password' => env('TENANT_MASTER_ACC_PASSWORD')
     ];
-    $response = $this->call('POST', '/'.$this->test_company_subdir.'/api/login', $credentials);
+    $response = $this->call('POST', $this->api_url.'api/login', $credentials);
     $data = json_decode($response->getContent());
     $this->token = $data->token;
+  }
+
+  private function getHeaders() {
+    return [
+      'Authorization' => 'Bearer '.$this->token
+    ];
   }
 
   public function testShouldCreateUser()
@@ -33,24 +39,36 @@ class TenantUserTest extends TestCase
       'first_name' => 'Test First',
       'second_name' => 'Test Second',
       'email_address' => 'testemail@gmail.com',
-      'password' => '123456789',
-      'password_confirmation' => '123456789'
+      'password' => 'N8gDs6H#gc9^-Y(F',
+      'password_confirmation' => 'N8gDs6H#gc9^-Y(F'
     ];
-    $headers = ['Authorization' => 'Bearer '.$this->token];
-    $response = $this->call('POST', '/'.$this->test_company_subdir.'/api/users/create', $parameters, $headers);
+    $headers = $this->getHeaders();
+    $response = $this->call('POST', $this->api_url.'api/users/create', $parameters, $headers);
     $this->assertEquals(201, $response->status());
   }
 
-//  public function testShouldUpdateUser()
-//  {
-//
-//  }
-//
-//  public function testShouldDeactivateUser()
-//  {
-//
-//  }
-//
+  public function testShouldUpdateUser()
+  {
+    $parameters = [
+      'user_id' => 2,
+      'first_name' => 'Test Updated First Name',
+      'second_name' => 'Test Update Second Name'
+    ];
+    $headers = $this->getHeaders();
+    $response = $this->call('POST', $this->api_url.'api/users/update', $parameters, $headers);
+    $this->assertEquals(204, $response->status());
+  }
+
+  public function testShouldToggleActiveStateOfUser()
+  {
+    $parameters = [
+      'user_id' => 2
+    ];
+    $headers = $this->getHeaders();
+    $response = $this->call('POST', $this->api_url.'api/users/toggleActive', $parameters, $headers);
+    $this->assertEquals(204, $response->status());
+  }
+
 //  public function testShouldGetAllUsers()
 //  {
 //

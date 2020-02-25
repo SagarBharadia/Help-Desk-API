@@ -58,7 +58,7 @@ class TenantUserController extends Controller
       'password' => ['string', 'confirmed', new StrongPassword]
     ]);
 
-    $user = TenantUser::find($request->user_id);
+    $user = TenantUser::find($request->get('user_id'));
 
     if(empty($user)) {
       $response = response()->json(['message' => 'User not found.'], 404);
@@ -70,7 +70,7 @@ class TenantUserController extends Controller
       if(!empty($request->get('password'))) $user->password = Hash::make($request->get('password'));
 
       if($user->save()) {
-        $response = response()->json(['message' => 'User updated.'], 201);
+        $response = response()->json(['message' => 'User updated.'], 204);
       } else {
         $response = response()->json(['message' => 'User updates could not be saved.'], 500);
       }
@@ -81,14 +81,32 @@ class TenantUserController extends Controller
 
   public function toggleActive(Request $request)
   {
+    // Validate the request
+    $this->validate($request, [
+      'user_id' => 'required|integer'
+    ]);
 
+    $user = TenantUser::find($request->get('user_id'));
+
+    if(empty($user)) {
+      $response = response()->json(['message' => 'User not found.'], 404);
+    } else {
+      $user->active = !$user->active;
+
+      if($user->save()) {
+        $response = response()->json(['message' => 'User updated.'], 204);
+      } else {
+        $response = response()->json(['message' => 'Could not toggle active state of user.'], 500);
+      }
+    }
+
+    return $response;
   }
 
 
 
   public function getAll()
   {
-
   }
 
   public function getUser(int $userId)

@@ -23,7 +23,7 @@
         <env name="CACHE_DRIVER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="TENANT_MASTER_ACC_EMAIL_ADDRESS" value="johnsmith@example.com"/>
-        <env name="TENANT_MASTER_ACC_PASSWORD" value="123456789"/>
+        <env name="TENANT_MASTER_ACC_PASSWORD" value="N8gDs6H#gc9^-Y(F"/>
         <env name="TEST_COMPANY_SUBDIR" value="test"/>
     </php>
 </phpunit>
