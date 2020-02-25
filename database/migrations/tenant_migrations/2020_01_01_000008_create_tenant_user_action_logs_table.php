@@ -17,7 +17,7 @@ class CreateTenantUserActionLogsTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('log_action_id');
-            $table->text('details');
+            $table->text('details')->nullable();
             $table->timestamps();
 
 

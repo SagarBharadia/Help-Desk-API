@@ -30,4 +30,12 @@ class TenantLogAction extends Model
       return $this->hasMany('App\TenantUserActionLog', 'log_action_id');
     }
 
+    public static function getIdOfAction(string $action) {
+      $action = TenantLogAction::where('action', $action)->first();
+      if(!empty($action)) {
+        return $action->id;
+      }
+      return false;
+    }
+
 }

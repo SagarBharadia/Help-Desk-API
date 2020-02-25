@@ -19,7 +19,7 @@ class StrongPassword implements Rule
   {
     $oneUppercaseRegex = '/[A-Z]{1,}/';
     $oneLowercaseRegex = '/[a-z]{1,}/';
-    $threeDigitsRegex = '/[0-9]{3,}/';
+    $threeDigitsRegex = '/(.*[0-9]){3,}/';
     $twoSpecialCharsRegex = '/[\'^£$%&*()}{@#~?><>,|=_+¬\-\[\]!]{2,}/';
 
     $matchesOneUppercase = preg_match($oneUppercaseRegex, $value);
