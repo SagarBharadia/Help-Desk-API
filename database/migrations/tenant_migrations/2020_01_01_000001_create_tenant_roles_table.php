@@ -20,7 +20,7 @@ class CreateTenantRolesTable extends Migration
             $table->boolean('protected_role');
             $table->timestamps();
         });
-        DB::table('roles')->insert([
+        DB::connection('tenant')->table('roles')->insert([
           [
             'id' => 1,
             'name' => 'master',

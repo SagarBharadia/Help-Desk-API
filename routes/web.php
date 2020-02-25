@@ -74,5 +74,5 @@ $router->group([
   // THEN CREATING REPORTS
 
   // Calls related routes
-  $router->post('calls/create', ['middleware' => 'perm:create-calls', 'uses' => 'TenantCallController@create']);
+  $router->post('calls/create', ['middleware' => 'perm:create-call', 'uses' => 'TenantCallController@create']);
 });

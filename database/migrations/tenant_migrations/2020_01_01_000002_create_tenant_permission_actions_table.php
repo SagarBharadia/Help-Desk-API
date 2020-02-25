@@ -20,7 +20,7 @@ class CreateTenantPermissionActionsTable extends Migration
             $table->timestamps();
         });
 
-        DB::table('permission_actions')->insert([
+        DB::connection('tenant')->table('permission_actions')->insert([
           [
             'name' => 'Create Users',
             'action' => 'create-users'
@@ -54,64 +54,64 @@ class CreateTenantPermissionActionsTable extends Migration
             'action' => 'delete-roles'
           ],
           [
-            'name' => 'Assign Permissions to Roles',
-            'action' => 'assign-permissions-to-roles'
+            'name' => 'Assign Permissions to Role',
+            'action' => 'assign-permissions-to-role'
           ],
           [
-            'name' => 'Read Permissions for Roles',
-            'action' => 'read-permissions-for-roles'
+            'name' => 'Read Permissions for Role',
+            'action' => 'read-permissions-for-role'
           ],
           [
-            'name' => 'Update Permissions for Roles',
-            'action' => 'update-permissions-for-roles'
+            'name' => 'Update Permissions for Role',
+            'action' => 'update-permissions-for-role'
           ],
           [
-            'name' => 'Create Calls',
-            'action' => 'create-calls'
+            'name' => 'Create Call',
+            'action' => 'create-call'
           ],
           [
-            'name' => 'Read Calls',
-            'action' => 'read-calls'
+            'name' => 'Read Call',
+            'action' => 'read-call'
           ],
           [
-            'name' => 'Update Calls',
-            'action' => 'update-calls'
+            'name' => 'Update Call',
+            'action' => 'update-call'
           ],
           [
-            'name' => 'Delete Calls',
-            'action' => 'delete-calls'
+            'name' => 'Delete Call',
+            'action' => 'delete-call'
           ],
           [
-            'name' => 'Create Reports',
-            'action' => 'create-reports'
+            'name' => 'Create Report',
+            'action' => 'create-report'
           ],
           [
-            'name' => 'Read Reports',
-            'action' => 'read-reports'
+            'name' => 'Read Report',
+            'action' => 'read-report'
           ],
           [
-            'name' => 'Delete Reports',
-            'action' => 'delete-reports'
+            'name' => 'Delete Report',
+            'action' => 'delete-report'
           ],
           [
             'name' => 'Read User Logs',
             'action' => 'read-user-logs'
           ],
           [
-            'name' => 'Create Clients',
-            'action' => 'create-clients'
+            'name' => 'Create Client',
+            'action' => 'create-client'
           ],
           [
-            'name' => 'Read Clients',
-            'action' => 'read-clients'
+            'name' => 'Read Client',
+            'action' => 'read-client'
           ],
           [
-            'name' => 'Update Clients',
-            'action' => 'update-clients'
+            'name' => 'Update Client',
+            'action' => 'update-client'
           ],
           [
-            'name' => 'Delete Clients',
-            'action' => 'delete-clients'
+            'name' => 'Delete Client',
+            'action' => 'delete-client'
           ],
           [
             'name' => 'Search Previous Solved Logs',
