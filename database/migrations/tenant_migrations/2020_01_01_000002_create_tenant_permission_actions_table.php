@@ -34,8 +34,8 @@ class CreateTenantPermissionActionsTable extends Migration
             'action' => 'update-users'
           ],
           [
-            'name' => 'Deactivate Users',
-            'action' => 'deactivate-users'
+            'name' => 'Toggle Active State For Users',
+            'action' => 'toggleActive-for-users'
           ],
           [
             'name' => 'Create Roles',

@@ -34,8 +34,8 @@ class CreateTenantLogActionsTable extends Migration
         'action' => 'updated-user'
       ],
       [
-        'name' => 'Deactivated User',
-        'action' => 'deactivated-user'
+        'name' => 'Toggle Active State for User',
+        'action' => 'toggledActive-for-user'
       ],
       [
         'name' => 'Created Role',

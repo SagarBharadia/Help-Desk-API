@@ -57,8 +57,8 @@ $router->group([
 ], function () use ($router) {
   // User Related Routes
   $router->post('users/create', ['middleware' => 'perm:create-users', 'uses' => 'TenantUserController@create']);
-//  $router->post('users/update', ['middleware' => 'perm:update-users', 'uses' => 'TenantUserController@update']);
-//  $router->post('users/deactivate', ['middleware' => 'perm:deactivate-users', 'uses' => 'TenantUserController@deactivate']);
+  $router->post('users/update', ['middleware' => 'perm:update-users', 'uses' => 'TenantUserController@update']);
+//  $router->post('users/toggleActive', ['middleware' => 'perm:toggleActive-for-users', 'uses' => 'TenantUserController@toggleActive']);
 //  $router->post('users/get/all', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getAll']);
   // No middleware as check if self or permission allowed will be done programmatically in controller
 //  $router->post('users/get/{user_id}', ['uses' => 'TenantUserController@getUser']);
