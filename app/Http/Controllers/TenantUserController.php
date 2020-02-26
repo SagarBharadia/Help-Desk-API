@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Rules\StrongPassword;
 use App\TenantUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class TenantUserController extends Controller
@@ -107,6 +108,7 @@ class TenantUserController extends Controller
 
   public function getAll()
   {
+    return DB::connection('tenant')->table('users')->select(['id', 'first_name', 'second_name', 'email_address', 'active'])->simplePaginate();
   }
 
   public function getUser(int $userId)
