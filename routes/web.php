@@ -67,7 +67,12 @@ $router->group([
   // view self
   // update fields except email, email is not allowed to be updated by self
 
-  // THEN CREATING NEW COMPANIES
+  // Platform Level Client Routes
+//  $router->post('clients/create', ['middleware' => 'perm:create-client', 'uses' => 'TenantClientController@create']);
+//  $router->post('clients/update', ['middleware' => 'perm:update-client', 'uses' => 'TenantClientController@update']);
+//  $router->post('clients/delete', ['middleware' => 'perm:delete-client', 'uses' => 'TenantClientController@delete']);
+//  $router->get('clients/get/all', ['middleware' => 'perm:read-client', 'uses' => 'TenantClientController@getAll']);
+//  $router->get('clients/get/{client_id}', ['middleware' => 'perm:read-client', 'uses' => 'TenantClientController@get']);
 
   // THEN CREATING NEW CALLS
 
