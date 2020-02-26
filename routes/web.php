@@ -55,14 +55,17 @@ $router->group([
     'auth:tenant_api'
   ]
 ], function () use ($router) {
-  // User Related Routes
+  // Platform Level User Routes
   $router->post('users/create', ['middleware' => 'perm:create-users', 'uses' => 'TenantUserController@create']);
   $router->post('users/update', ['middleware' => 'perm:update-users', 'uses' => 'TenantUserController@update']);
   $router->post('users/toggleActive', ['middleware' => 'perm:toggleActive-for-users', 'uses' => 'TenantUserController@toggleActive']);
   $router->get('users/get/all', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getAll']);
   $router->get('users/get/{user_id}', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getUser']);
 
-  // THEN USER RELATED (RESET PASSWORD, EMAIL CONFIRMATION)
+  // Self User User Routes
+  // change password
+  // view self
+  // update fields except email, email is not allowed to be updated by self
 
   // THEN CREATING NEW COMPANIES
 

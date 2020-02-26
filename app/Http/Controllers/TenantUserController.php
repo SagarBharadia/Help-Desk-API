@@ -21,6 +21,13 @@ class TenantUserController extends Controller
     //
   }
 
+  /**
+   * Create a new tenant user.
+   *
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   * @throws \Illuminate\Validation\ValidationException
+   */
   public function create(Request $request)
   {
     // validate the request
@@ -48,6 +55,13 @@ class TenantUserController extends Controller
     return $response;
   }
 
+  /**
+   * Update a tenant user.
+   *
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   * @throws \Illuminate\Validation\ValidationException
+   */
   public function update(Request $request)
   {
     // Validate the request
@@ -81,6 +95,13 @@ class TenantUserController extends Controller
     return $response;
   }
 
+  /**
+   * Toggle the active state of a user.
+   *
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   * @throws \Illuminate\Validation\ValidationException
+   */
   public function toggleActive(Request $request)
   {
     // Validate the request
@@ -105,13 +126,22 @@ class TenantUserController extends Controller
     return $response;
   }
 
-
-
+  /**
+   * Retrieve users in pagination, including links to get the next page.
+   *
+   * @return \Illuminate\Contracts\Pagination\Paginator
+   */
   public function getAll()
   {
     return DB::connection('tenant')->table('users')->select(['id', 'first_name', 'second_name', 'email_address', 'active'])->simplePaginate();
   }
 
+  /**
+   * Get user based on user id.
+   *
+   * @param int $user_id
+   * @return \Illuminate\Http\JsonResponse
+   */
   public function getUser(int $user_id)
   {
     // Validating request
