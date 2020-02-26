@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Rules\StrongPassword;
+use App\TenantLogAction;
+use App\TenantRole;
 use App\TenantUser;
+use App\TenantUserActionLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -46,7 +50,13 @@ class TenantUserController extends Controller
     $user->email_address = $request->get('email_address');
     $user->password = Hash::make($request->get('password'));
 
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('created-user');
+    $userActionLog->details = "Created account for ".$user->first_name." ".$user->second_name." (".$user->email_address.").";
+
     if ($user->save()) {
+      if($userActionLog->log_action_id) $userActionLog->save();
       $response = response()->json(['message' => 'User created.'], 201);
     } else {
       $response = response()->json(['message' => 'User failed to save.'], 500);
@@ -76,16 +86,38 @@ class TenantUserController extends Controller
 
     $user = TenantUser::find($request->get('user_id'));
 
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('updated-user');
+
     if(empty($user)) {
       $response = response()->json(['message' => 'User not found.'], 404);
     } else {
-      if(!empty($request->get('role_id'))) $user->role_id = $request->get('role_id');
-      if(!empty($request->get('first_name'))) $user->first_name = $request->get('first_name');
-      if(!empty($request->get('second_name'))) $user->second_name = $request->get('second_name');
-      if(!empty($request->get('email_address'))) $user->email_address = $request->get('email_address');
-      if(!empty($request->get('password'))) $user->password = Hash::make($request->get('password'));
+      $userActionLog->details = "Updating details for ".$user->first_name." ".$user->second_name.". Changed:";
+      if(!empty($request->get('role_id'))) {
+        $newRole = TenantRole::find($request->get('role_id'));
+        $userActionLog->details .= " Role[".$user->role->display_name."(".$user->role->name.") -> ".$newRole->display_name."(".$newRole->name.")]";
+      }
+      if(!empty($request->get('first_name'))) {
+        $userActionLog->details .= " First Name[".$user->first_name." -> ".$request->get('first_name')."]";
+        $user->first_name = $request->get('first_name');
+      }
+      if(!empty($request->get('second_name'))) {
+        $userActionLog->details .= " Second Name[".$user->second_name." -> ".$request->get('second_name')."]";
+        $user->second_name = $request->get('second_name');
+      }
+      if(!empty($request->get('email_address'))) {
+        $userActionLog->details .= " Email Address[".$user->email_address." -> ".$request->get('email_address')."]";
+        $user->email_address = $request->get('email_address');
+      }
+      if(!empty($request->get('password'))) {
+        $user->password = Hash::make($request->get('password'));
+        $userActionLog->details .= " Password[Password updated]";
+      }
 
       if($user->save()) {
+        if($userActionLog->log_action_id) $userActionLog->save();
+
         $response = response()->json(['message' => 'User updated.'], 204);
       } else {
         $response = response()->json(['message' => 'User updates could not be saved.'], 500);
@@ -110,6 +142,9 @@ class TenantUserController extends Controller
     ]);
 
     $user = TenantUser::find($request->get('user_id'));
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('toggledActive-for-user');
 
     if(empty($user)) {
       $response = response()->json(['message' => 'User not found.'], 404);
@@ -117,6 +152,8 @@ class TenantUserController extends Controller
       $user->active = !$user->active;
 
       if($user->save()) {
+        if($userActionLog->log_action_id) $userActionLog->save();
+
         $response = response()->json(['message' => 'User updated.'], 204);
       } else {
         $response = response()->json(['message' => 'Could not toggle active state of user.'], 500);
@@ -133,6 +170,11 @@ class TenantUserController extends Controller
    */
   public function getAll()
   {
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-user');
+    $userActionLog->details = "Accessed all users via /get/all";
+    if($userActionLog->log_action_id) $userActionLog->save();
     return DB::connection('tenant')->table('users')->select(['id', 'first_name', 'second_name', 'email_address', 'active'])->simplePaginate();
   }
 
@@ -151,9 +193,15 @@ class TenantUserController extends Controller
 
     $user = TenantUser::find($user_id);
 
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-user');
+
     if(empty($user)) {
       $response = response()->json(['message' => 'User not found.'], 404);
     } else {
+      $userActionLog->details = "Accessed user ".$user->first_name." ".$user->second_name." [id: ".$user->id."]";
+      if($userActionLog->log_action_id) $userActionLog->save();
       $response = response()->json(['message' => 'User found.', 'user' => $user], 200);
     }
 

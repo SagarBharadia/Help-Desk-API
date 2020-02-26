@@ -15,8 +15,8 @@ class CreateTenantRolesTable extends Migration
     {
         Schema::connection('tenant')->create('roles', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('display_name');
+            $table->string('name')->unique();
+            $table->string('display_name')->unique();
             $table->boolean('protected_role');
             $table->timestamps();
         });
