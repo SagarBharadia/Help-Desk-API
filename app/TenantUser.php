@@ -75,13 +75,13 @@ class TenantUser extends Model implements AuthenticatableContract, AuthorizableC
     }
 
     /**
-     * Get the companies this user has created.
+     * Get the clients this user has created.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function companiesCreated()
+    public function clientsCreated()
     {
-        return $this->hasMany('App\TenantCompany', 'created_by');
+        return $this->hasMany('App\TenantClient', 'created_by');
     }
 
     /**

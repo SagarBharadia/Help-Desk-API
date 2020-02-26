@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TenantCompany extends Model
+class TenantClient extends Model
 {
     /**
      * The table name the model should use.

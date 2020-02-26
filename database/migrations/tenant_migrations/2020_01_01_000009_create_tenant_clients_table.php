@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTenantCompaniesTable extends Migration
+class CreateTenantClientsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateTenantCompaniesTable extends Migration
      */
     public function up()
     {
-        Schema::connection('tenant')->create('companies', function (Blueprint $table) {
+        Schema::connection('tenant')->create('clients', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('created_by');
             $table->string('name');

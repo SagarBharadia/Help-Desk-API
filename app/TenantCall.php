@@ -32,7 +32,7 @@ class TenantCall extends Model
      */
     public function company()
     {
-        return $this->belongsTo('App\TenantCompany');
+        return $this->belongsTo('App\TenantClient');
     }
 
     /**
