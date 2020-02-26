@@ -60,7 +60,7 @@ $router->group([
   $router->post('users/update', ['middleware' => 'perm:update-users', 'uses' => 'TenantUserController@update']);
   $router->post('users/toggleActive', ['middleware' => 'perm:toggleActive-for-users', 'uses' => 'TenantUserController@toggleActive']);
   $router->get('users/get/all', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getAll']);
-//  $router->get('users/get/{user_id}', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getUser']);
+  $router->get('users/get/{user_id}', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getUser']);
 
   // THEN USER RELATED (RESET PASSWORD, EMAIL CONFIRMATION)
 

@@ -7,6 +7,7 @@ use App\TenantUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class TenantUserController extends Controller
 {
@@ -111,8 +112,21 @@ class TenantUserController extends Controller
     return DB::connection('tenant')->table('users')->select(['id', 'first_name', 'second_name', 'email_address', 'active'])->simplePaginate();
   }
 
-  public function getUser(int $userId)
+  public function getUser(int $user_id)
   {
+    // Validating request
+    $validator = Validator::make(['user_id' => $user_id], [
+      'user_id' => 'required|integer'
+    ]);
 
+    $user = TenantUser::find($user_id);
+
+    if(empty($user)) {
+      $response = response()->json(['message' => 'User not found.'], 404);
+    } else {
+      $response = response()->json(['message' => 'User found.', 'user' => $user], 200);
+    }
+
+    return $response;
   }
 }

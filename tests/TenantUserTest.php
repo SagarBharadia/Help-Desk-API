@@ -76,8 +76,10 @@ class TenantUserTest extends TestCase
     $this->assertEquals(200, $response->status());
   }
 
-//  public function testShouldGetUser()
-//  {
-//
-//  }
+  public function testShouldGetUser()
+  {
+    $headers = $this->getHeaders();
+    $response = $this->call('GET', $this->api_url.'api/users/get/2', [], $headers);
+    $this->assertEquals(200, $response->status());
+  }
 }
