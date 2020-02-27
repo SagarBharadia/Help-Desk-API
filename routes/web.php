@@ -12,17 +12,17 @@
 */
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+  return $router->app->version();
 });
 
 // Unauthenticated /super/api/ routes
 $router->group([
   'prefix' => 'super/api'
 ], function () use ($router) {
-    // Matches /super/api/login
-    $router->post('login', 'GlobalAuthController@login');
-    // Matches /super/api/register
-    $router->post('register', 'GlobalAuthController@register');
+  // Matches /super/api/login
+  $router->post('login', 'GlobalAuthController@login');
+  // Matches /super/api/register
+  $router->post('register', 'GlobalAuthController@register');
 });
 
 // Authenticated /super/api/ routes
@@ -33,8 +33,8 @@ $router->group([
     'role:super'
   ]
 ], function () use ($router) {
-    // Matches /super/api/create/tenant
-    $router->post('create/tenant', 'GlobalCompanyController@create');
+  // Matches /super/api/create/tenant
+  $router->post('create/tenant', 'GlobalCompanyController@create');
 });
 
 // Unauthenticated tenant routes
@@ -44,7 +44,7 @@ $router->group([
     'addTenantConnection',
   ]
 ], function () use ($router) {
-    $router->post('login', 'TenantAuthController@login');
+  $router->post('login', 'TenantAuthController@login');
 });
 
 // Authenticated tenant routes
@@ -71,8 +71,8 @@ $router->group([
   $router->post('clients/create', ['middleware' => 'perm:create-client', 'uses' => 'TenantClientController@create']);
   $router->post('clients/update', ['middleware' => 'perm:update-client', 'uses' => 'TenantClientController@update']);
   $router->post('clients/delete', ['middleware' => 'perm:delete-client', 'uses' => 'TenantClientController@delete']);
-  // $router->get('clients/get/all', ['middleware' => 'perm:read-client', 'uses' => 'TenantClientController@getAll']);
-  // $router->get('clients/get/{client_id}', ['middleware' => 'perm:read-client', 'uses' => 'TenantClientController@get']);
+  $router->get('clients/get/all', ['middleware' => 'perm:read-client', 'uses' => 'TenantClientController@getAll']);
+  $router->get('clients/get/{client_id}', ['middleware' => 'perm:read-client', 'uses' => 'TenantClientController@get']);
 
   // THEN CREATING NEW CALLS
 

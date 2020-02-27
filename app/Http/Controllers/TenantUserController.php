@@ -182,14 +182,16 @@ class TenantUserController extends Controller
    * Get user based on user id.
    *
    * @param int $user_id
-   * @return \Illuminate\Http\JsonResponse
+   * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\MessageBag
    */
-  public function getUser(int $user_id)
+  public function getUser($user_id)
   {
     // Validating request
     $validator = Validator::make(['user_id' => $user_id], [
       'user_id' => 'required|integer'
     ]);
+
+    if($validator->fails()) return $validator->errors();
 
     $user = TenantUser::find($user_id);
 
