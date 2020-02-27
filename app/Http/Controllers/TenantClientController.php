@@ -128,7 +128,7 @@ class TenantClientController extends Controller
     if (empty($client)) {
       $response = response()->json(['message' => 'Could not find client.'], 404);
     } else {
-      if (empty($client->calls)) {
+      if ($client->calls->isEmpty()) {
         $userActionLog->details = "Deleted client " . $client->name . "(" . $client->email_address . ")";
         if ($client->delete()) {
           if ($userActionLog->log_action_id) $userActionLog->save();
