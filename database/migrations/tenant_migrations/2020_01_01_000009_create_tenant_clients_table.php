@@ -23,7 +23,7 @@ class CreateTenantClientsTable extends Migration
 
         });
 
-        Schema::connection('tenant')->table('companies', function(Blueprint $table) {
+        Schema::connection('tenant')->table('clients', function(Blueprint $table) {
             $table->foreign('created_by')->references('id')->on('users');
         });
     }
@@ -35,6 +35,6 @@ class CreateTenantClientsTable extends Migration
      */
     public function down()
     {
-        Schema::connection('tenant')->dropIfExists('companies');
+        Schema::connection('tenant')->dropIfExists('clients');
     }
 }
