@@ -36,4 +36,14 @@ class TenantClient extends Model
   {
     return $this->belongsTo('App\TenantUser', 'id', 'created_by');
   }
+
+  /**
+   * Getting the calls for this client.
+   *
+   * @return \Illuminate\Database\Eloquent\Relations\HasMany
+   */
+  public function calls()
+  {
+    return $this->hasMany('App\TenantCall', 'client_id');
+  }
 }

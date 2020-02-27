@@ -93,7 +93,31 @@ class TenantClientController extends Controller
 
     public function delete(Request $request)
     {
+      $this->validate($request, [
+        'client_id' => 'required|integer'
+      ]);
 
+      $client = TenantClient::find($request->get('client_id'));
+      $userActionLog = new TenantUserActionLog();
+      $userActionLog->user_id = Auth::guard('tenant')->user()->id;
+      $userActionLog->log_action_id = TenantLogAction::getIdOfAction('deleted-client');
+
+      if(empty($client)) {
+        $response = response()->json(['message' => 'Could not find client.'], 404);
+      } else {
+        if(empty($client->calls)) {
+          $userActionLog->details = "Deleted client ".$client->name."(".$client->email_address.")";
+          if($client->delete()) {
+            $response = response()->json([], 204);
+          } else {
+            $response = response()->json(['message' => 'Client deletion failed.'], 500);
+          }
+        } else {
+          $response = response()->json(['message' => 'Unable to delete client as they have dependencies.'], 500);
+        }
+      }
+
+      return $response;
     }
 
     public function getAll()

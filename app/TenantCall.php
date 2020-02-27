@@ -26,13 +26,13 @@ class TenantCall extends Model
     ];
 
     /**
-     * Getting the company that this call belongs to.
+     * Getting the client that this call belongs to.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function client()
     {
-        return $this->belongsTo('App\TenantClient');
+        return $this->belongsTo('App\TenantClient', 'id', 'client_id');
     }
 
     /**
