@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\TenantCall;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TenantCallController extends Controller
 {
@@ -22,7 +23,7 @@ class TenantCallController extends Controller
     {
         // Validating the request
         $this->validate($request, [
-            'company_id' => 'required|integer',
+            'client_id' => 'required|integer',
             'caller_name' => 'required|string',
             'name' => 'required|string',
             'details' => 'required|string',
@@ -31,13 +32,13 @@ class TenantCallController extends Controller
 
         // Creating the call using the TenantCall model
         return TenantCall::create([
-            'receiver_id' => $request->user()->id,
+            'receiver_id' => Auth::guard('tenant_api')->user()->id,
             'current_analyst_id' => 0,
-            'company_id' => $request->company_id,
-            'caller_name' => $request->caller_name,
-            'name' => $request->name,
-            'details' => $request->details,
-            'tags' => $request->tags,
+            'client_id' => $request->get('client_id'),
+            'caller_name' => $request->get('caller_name'),
+            'name' => $request->get('name'),
+            'details' => $request->get('details'),
+            'tags' => $request->get('tags'),
             'resolved' => 0
         ]);
     }

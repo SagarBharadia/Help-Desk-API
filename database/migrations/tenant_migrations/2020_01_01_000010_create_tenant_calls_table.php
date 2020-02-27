@@ -16,7 +16,7 @@ class CreateTenantCallsTable extends Migration
         Schema::connection('tenant')->create('calls', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('receiver_id');
-            $table->unsignedBigInteger('current_analyst_id');
+            $table->unsignedBigInteger('current_analyst_id')->nullable();
             $table->unsignedBigInteger('client_id');
             $table->string('caller_name');
             $table->string('name');
@@ -31,7 +31,6 @@ class CreateTenantCallsTable extends Migration
 
         Schema::connection('tenant')->table('calls', function(Blueprint $table) {
             $table->foreign('receiver_id')->references('id')->on('users');
-            $table->foreign('current_analyst_id')->references('id')->on('users');
             $table->foreign('client_id')->references('id')->on('clients');
         });
     }

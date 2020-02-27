@@ -74,12 +74,13 @@ $router->group([
   $router->get('clients/get/all', ['middleware' => 'perm:read-client', 'uses' => 'TenantClientController@getAll']);
   $router->get('clients/get/{client_id}', ['middleware' => 'perm:read-client', 'uses' => 'TenantClientController@get']);
 
-  // THEN CREATING NEW CALLS
+  // Platform Level Call Routes
+  $router->post('calls/create', ['middleware' => 'perm:create-call', 'uses' => 'TenantCallController@create']);
 
   // THEN CREATING CALL UPDATES
 
   // THEN CREATING REPORTS
 
   // Calls related routes
-  $router->post('calls/create', ['middleware' => 'perm:create-call', 'uses' => 'TenantCallController@create']);
+
 });

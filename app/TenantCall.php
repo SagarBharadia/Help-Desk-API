@@ -21,7 +21,7 @@ class TenantCall extends Model
     protected $connection = "tenant";
 
     protected $fillable = [
-      'receiver_d', 'current_analyst_id', 'company_id',
+      'receiver_id', 'current_analyst_id', 'client_id',
       'caller_name', 'name', 'details', 'tags', 'resolved'
     ];
 
