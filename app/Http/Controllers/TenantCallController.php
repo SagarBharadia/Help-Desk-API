@@ -66,21 +66,21 @@ class TenantCallController extends Controller
 
     public function update(Request $request)
     {
-
+      return response()->json([], 501);
     }
 
     public function delete(Request $request)
     {
-
+      return response()->json([], 501);
     }
 
     public function getAll()
     {
-
+      return response()->json([], 501);
     }
 
     public function get($call_id)
     {
-
+      return response()->json([], 501);
     }
 }

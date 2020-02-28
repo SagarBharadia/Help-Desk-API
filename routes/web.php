@@ -77,10 +77,10 @@ $router->group([
   // Platform Level Call Routes
   $router->post('calls/create', ['middleware' => 'perm:create-call', 'uses' => 'TenantCallController@create']);
   $router->post('calls/update', ['middleware' => 'perm:update-call', 'uses' => 'TenantCallController@update']);
-//  $router->post('calls/delete', ['middleware' => 'perm:delete-call', 'uses' => 'TenantCallController@delete']);
-//  $router->get('calls/get/all', ['middleware' => 'perm:read-call', 'uses' => 'TenantCallController@getAll']);
+  $router->post('calls/delete', ['middleware' => 'perm:delete-call', 'uses' => 'TenantCallController@delete']);
+  $router->get('calls/get/all', ['middleware' => 'perm:read-call', 'uses' => 'TenantCallController@getAll']);
   // Might create another middleware to check if the call is assigned to this user or role is master
-//  $router->get('calls/get/{call_id}', ['middleware' => 'perm:read-call', 'uses' => 'TenantCallController@get']);
+  $router->get('calls/get/{call_id}', ['middleware' => 'perm:read-call', 'uses' => 'TenantCallController@get']);
 
   // THEN CREATING CALL UPDATES
 

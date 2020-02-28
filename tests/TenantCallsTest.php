@@ -27,6 +27,7 @@ class TenantCallsTest extends TestCase
     $this->token = $data->token;
     \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantCallsReset']);
     \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantClientSeeder']);
+    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantCallsSeeder']);
   }
 
   private function getHeaders() {
@@ -35,10 +36,18 @@ class TenantCallsTest extends TestCase
     ];
   }
 
+  private function getClient() {
+    return DB::connection('tenant')->table('clients')->where('id', '=', 1)->first();
+  }
+
+  private function getCall(int $id) {
+    return DB::connection('tenant')->table('calls')->where('id', '=', $id)->first();
+  }
+
   public function testShouldCreateCall()
   {
-    $client = DB::connection('tenant')->table('clients')->where('id', '=', 1)->first();
-    if(!$client) $this->fail('Seeder did not work.');
+    $client = $this->getClient();
+    if(!$client) $this->fail('Client seeder did not work.');
     $parameters = [
       'client_id' => $client->id,
       'caller_name' => 'Emma',
@@ -49,6 +58,45 @@ class TenantCallsTest extends TestCase
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url.'api/calls/create', $parameters, $headers);
     $this->assertEquals(204, $response->status());
+  }
+
+  public function testShouldUpdateCall()
+  {
+    $call = $this->getCall(1);
+    if(!$call) $this->fail('Call seeder failed.');
+    $parameters = [
+      'call_id' => $call->id,
+      'details' => 'Currently looking into the issue. The client has said that the online payment was via stripe.'
+    ];
+    $headers = $this->getHeaders();
+    $response = $this->call('POST', $this->api_url.'api/calls/update', $parameters, $headers);
+    $this->assertEquals(204, $response->status());
+  }
+
+  public function testShouldDeleteCall()
+  {
+    $call = $this->getCall(1);
+    if(!$call) $this->fail('Call seeder failed.');
+    DB::connection('tenant')->table('call_updates')->where('call_id', '=', $call->id)->delete();
+    $parameters = [
+      'call_id' => $call->id
+    ];
+    $headers = $this->getHeaders();
+    $response = $this->call('POST', $this->api_url.'api/calls/delete', $parameters, $headers);
+    $this->assertEquals(204, $response->status());
+  }
+
+  public function testShouldGetAllCalls()
+  {
+    $headers = $this->getHeaders();
+    $response = $this->call('GET', $this->api_url.'api/calls/get/all', [], $headers);
+    $this->assertEquals(200, $response->status());
+  }
+
+  public function testShouldGetCall() {
+    $headers = $this->getHeaders();
+    $response = $this->call('GET', $this->api_url.'api/calls/get/2', [], $headers);
+    $this->assertEquals(200, $response->status());
   }
 
 }
