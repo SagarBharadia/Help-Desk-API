@@ -4,7 +4,7 @@ use App\GlobalCompanyDatabase;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class TenantClientSeeder extends Seeder
+class TenantCallsReset extends Seeder
 {
 
   private function addTenantConnection() {
@@ -29,13 +29,7 @@ class TenantClientSeeder extends Seeder
   public function run()
   {
     $this->addTenantConnection();
-    DB::connection('tenant')->table('clients')->delete();
-    DB::connection('tenant')->table('clients')->insert([
-      'id' => 1,
-      'created_by' => 1,
-      'name' => 'Stacey\'s hair salon',
-      'email_address' => 'stacey@staceyssalon.com',
-      'phone_number' => '07345479867'
-    ]);
+    DB::connection('tenant')->table('calls')->delete();
+
   }
 }

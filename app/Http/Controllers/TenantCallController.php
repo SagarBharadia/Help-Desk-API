@@ -55,7 +55,7 @@ class TenantCallController extends Controller
         $userActionLog->details = "Created call '".$call->name."'.";
 
         if($call->save()) {
-          $response = response()->json([], 201);
+          $response = response()->json([], 204);
           if($userActionLog->log_action_id) $userActionLog->save();
         } else {
           $response = response()->json(['message' => 'Could not save call.'], 500);
