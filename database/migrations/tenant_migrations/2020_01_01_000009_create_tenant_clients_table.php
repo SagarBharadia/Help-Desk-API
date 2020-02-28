@@ -17,8 +17,8 @@ class CreateTenantClientsTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('created_by');
             $table->string('name');
-            $table->string('email_address');
-            $table->string('phone_number');
+            $table->string('email_address')->unique();
+            $table->string('phone_number')->unique();
             $table->timestamps();
 
         });

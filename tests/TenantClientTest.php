@@ -1,5 +1,6 @@
 <?php /** @noinspection PhpComposerExtensionStubsInspection */
 
+use Illuminate\Support\Facades\DB;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -46,8 +47,10 @@ class TenantClientTest extends TestCase
 
   public function testShouldUpdateClient()
   {
+    $client = DB::table('clients')->where('email_address', 'client@clienturl.com');
+    if($client->doesntExist()) $this->fail('Create function did not work.');
     $parameters = [
-      'client_id' => 1,
+      'client_id' => $client->id,
       'name' => 'Client Update Name',
       'email_address' => 'updateclientemail@clienturl.com',
       'phone_number' => '09876543210'
@@ -73,8 +76,10 @@ class TenantClientTest extends TestCase
 
   public function testShouldDeleteClient()
   {
+    $client = DB::table('clients')->where('email_address', 'client@clienturl.com');
+    if($client->doesntExist()) $this->fail('Create function did not work.');
     $parameters = [
-      'client_id' => 1
+      'client_id' => $client->id
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url.'api/clients/delete', $parameters, $headers);
