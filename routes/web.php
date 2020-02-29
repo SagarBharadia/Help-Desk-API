@@ -63,11 +63,11 @@ $router->group([
   $router->get('users/get/{user_id}', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@get']);
 
   // Platform Level Role Routes
-  $router->post('roles/create', ['middleware' => 'perm:create-role', 'uses' => 'TenantRoleController@create']);
-  $router->post('roles/update', ['middleware' => 'perm:update-role', 'uses' => 'TenantRoleController@update']);
-  $router->post('roles/delete', ['middleware' => 'perm:delete-role', 'uses' => 'TenantRoleController@delete']);
-  $router->get('roles/get/all', ['middleware' => 'perm:read-role', 'uses' => 'TenantRoleController@getAll']);
-  $router->get('roles/get/{role_id}', ['middleware' => 'perm:read-role', 'uses' => 'TenantRoleController@get']);
+  $router->post('roles/create', ['middleware' => 'perm:create-roles', 'uses' => 'TenantRoleController@create']);
+  $router->post('roles/update', ['middleware' => 'perm:update-roles', 'uses' => 'TenantRoleController@update']);
+  $router->post('roles/delete', ['middleware' => 'perm:delete-roles', 'uses' => 'TenantRoleController@delete']);
+  $router->get('roles/get/all', ['middleware' => 'perm:read-roles', 'uses' => 'TenantRoleController@getAll']);
+  $router->get('roles/get/{role_id}', ['middleware' => 'perm:read-roles', 'uses' => 'TenantRoleController@get']);
 
   // Platform Level Client Routes
   $router->post('clients/create', ['middleware' => 'perm:create-client', 'uses' => 'TenantClientController@create']);

@@ -54,7 +54,7 @@ class TenantRoleTest extends TestCase
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url . 'api/roles/create', $parameters, $headers);
-    $this->assertEquals(201, $response->status());
+    $this->assertEquals(204, $response->status());
   }
 
   public function testShouldUpdateRole()
@@ -62,12 +62,13 @@ class TenantRoleTest extends TestCase
     $role = $this->getRoleByName('first-seeded-role');
     if (!$role) $this->fail('Role seeder didn\'t work.');
     $parameters = [
+      'role_id' => $role->id,
       'name' => 'first-updated-role',
       'display_name' => 'First Updated Role',
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url . 'api/roles/update', $parameters, $headers);
-    $this->assertEquals(201, $response->status());
+    $this->assertEquals(204, $response->status());
   }
 
   public function testShouldDeleteRole()
