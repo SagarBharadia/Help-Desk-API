@@ -7,20 +7,6 @@ use Illuminate\Support\Facades\DB;
 class TenantCallsSeeder extends Seeder
 {
 
-  private function addTenantConnection() {
-    // Getting the company_subdirectory from the route
-    $companySubDirectory = env('TEST_COMPANY_SUBDIR');
-
-    // Attempting to find a record in the global company database
-    $databaseRecord = GlobalCompanyDatabase::where('company_url_subdirectory', $companySubDirectory)
-      ->first();
-
-    if(empty($databaseRecord)) return response()->json(['message' => 'Not found.'], 404);
-
-    // If there is then add it to the connections list
-    addConnectionByName($databaseRecord->company_database_name);
-  }
-
   /**
    * Run the database seeds.
    *
@@ -28,10 +14,10 @@ class TenantCallsSeeder extends Seeder
    */
   public function run()
   {
-    $this->addTenantConnection();
+    $client = DB::connection('tenant')->table('clients')->where('email_address', '=', "stacey@staceyssalon.com")->first();
     DB::connection('tenant')->table('calls')->insert([
       'id' => 1,
-      'client_id' => 1,
+      'client_id' => $client->id,
       'receiver_id' => 1,
       'caller_name' => 'Catherine',
       'name' => 'Can\'t process online payments',
@@ -41,7 +27,7 @@ class TenantCallsSeeder extends Seeder
     ]);
     DB::connection('tenant')->table('calls')->insert([
       'id' => 2,
-      'client_id' => 1,
+      'client_id' => $client->id,
       'receiver_id' => 1,
       'caller_name' => 'Allison',
       'name' => 'Unable to generate online invoice',

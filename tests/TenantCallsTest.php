@@ -8,6 +8,7 @@ class TenantCallsTest extends TestCase
 {
   private $token;
   private $api_url;
+  protected static $alreadySetup = false;
 
   public function __construct($name = null, array $data = [], $dataName = '')
   {
@@ -25,9 +26,13 @@ class TenantCallsTest extends TestCase
     $response = $this->call('POST', $this->api_url.'api/login', $credentials);
     $data = json_decode($response->getContent());
     $this->token = $data->token;
-    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantCallsReset']);
-    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantClientSeeder']);
-    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantCallsSeeder']);
+
+    if(!static::$alreadySetup) {
+      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DropTablesForTest']);
+      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantClientSeeder']);
+      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantCallsSeeder']);
+      static::$alreadySetup = true;
+    }
   }
 
   private function getHeaders() {
@@ -36,17 +41,17 @@ class TenantCallsTest extends TestCase
     ];
   }
 
-  private function getClient() {
-    return DB::connection('tenant')->table('clients')->where('id', '=', 1)->first();
+  private function getClientByEmail($email) {
+    return DB::connection('tenant')->table('clients')->where('email_address', '=', $email)->first();
   }
 
-  private function getCall(int $id) {
+  private function getCallByID(int $id) {
     return DB::connection('tenant')->table('calls')->where('id', '=', $id)->first();
   }
 
   public function testShouldCreateCall()
   {
-    $client = $this->getClient();
+    $client = $this->getClientByEmail("kajal@kajalhair.com");
     if(!$client) $this->fail('Client seeder did not work.');
     $parameters = [
       'client_id' => $client->id,
@@ -62,7 +67,7 @@ class TenantCallsTest extends TestCase
 
   public function testShouldUpdateCall()
   {
-    $call = $this->getCall(1);
+    $call = $this->getCallByID(1);
     if(!$call) $this->fail('Call seeder failed.');
     $parameters = [
       'call_id' => $call->id,
@@ -75,7 +80,7 @@ class TenantCallsTest extends TestCase
 
   public function testShouldDeleteCall()
   {
-    $call = $this->getCall(1);
+    $call = $this->getCallByID(1);
     if(!$call) $this->fail('Call seeder failed.');
     DB::connection('tenant')->table('call_updates')->where('call_id', '=', $call->id)->delete();
     $parameters = [
