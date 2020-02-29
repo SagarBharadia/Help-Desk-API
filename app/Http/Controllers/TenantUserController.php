@@ -184,7 +184,7 @@ class TenantUserController extends Controller
    * @param int $user_id
    * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\MessageBag
    */
-  public function getUser($user_id)
+  public function get($user_id)
   {
     // Validating request
     $validator = Validator::make(['user_id' => $user_id], [

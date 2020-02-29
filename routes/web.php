@@ -60,12 +60,14 @@ $router->group([
   $router->post('users/update', ['middleware' => 'perm:update-users', 'uses' => 'TenantUserController@update']);
   $router->post('users/toggleActive', ['middleware' => 'perm:toggleActive-for-users', 'uses' => 'TenantUserController@toggleActive']);
   $router->get('users/get/all', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getAll']);
-  $router->get('users/get/{user_id}', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getUser']);
+  $router->get('users/get/{user_id}', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@get']);
 
-  // Self User User Routes
-  // change password
-  // view self
-  // update fields except email, email is not allowed to be updated by self
+  // Platform Level Role Routes
+  $router->post('roles/create', ['middleware' => 'perm:create-role', 'uses' => 'TenantRoleController@create']);
+  $router->post('roles/update', ['middleware' => 'perm:update-role', 'uses' => 'TenantRoleController@update']);
+  $router->post('roles/delete', ['middleware' => 'perm:delete-role', 'uses' => 'TenantRoleController@delete']);
+  $router->get('roles/get/all', ['middleware' => 'perm:read-role', 'uses' => 'TenantRoleController@getAll']);
+  $router->get('roles/get/{role_id}', ['middleware' => 'perm:read-role', 'uses' => 'TenantRoleController@get']);
 
   // Platform Level Client Routes
   $router->post('clients/create', ['middleware' => 'perm:create-client', 'uses' => 'TenantClientController@create']);
@@ -81,10 +83,6 @@ $router->group([
   $router->get('calls/get/all', ['middleware' => 'perm:read-call', 'uses' => 'TenantCallController@getAll']);
   $router->get('calls/get/{call_id}', ['middleware' => 'perm:read-call', 'uses' => 'TenantCallController@get']);
 
-  // THEN CREATING CALL UPDATES
-
   // THEN CREATING REPORTS
-
-  // Calls related routes
 
 });

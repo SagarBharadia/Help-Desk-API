@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DropTablesForTest extends Seeder
 {
@@ -15,5 +16,6 @@ class DropTablesForTest extends Seeder
     DB::connection('tenant')->table('calls')->delete();
     DB::connection('tenant')->table('clients')->delete();
     DB::connection('tenant')->table('users')->where('id', '!=', 1)->delete();
+    DB::connection('tenant')->table('roles')->where('protected_role', '!=', 1)->delete();
   }
 }
