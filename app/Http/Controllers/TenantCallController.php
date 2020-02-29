@@ -9,6 +9,8 @@ use App\TenantLogAction;
 use App\TenantUserActionLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class TenantCallController extends Controller
 {
@@ -141,18 +143,87 @@ class TenantCallController extends Controller
     return $response;
   }
 
+  /**
+   * Delete a call if there's are no dependencies.
+   *
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   * @throws \Illuminate\Validation\ValidationException
+   */
   public function delete(Request $request)
   {
-    return response()->json([], 501);
+    $this->validate($request, [
+      'call_id' => 'required|integer'
+    ]);
+
+    $call = TenantCall::find($request->get('call_id'));
+
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('deleted-call');
+
+    if (!$call) {
+      $response = response()->json(['message' => 'Call not found.'], 404);
+    } else {
+      if ($call->updates->isEmpty()) {
+        if ($call->delete()) {
+          if($userActionLog->log_action_id) $userActionLog->save();
+          $response = response()->json(['message' => 'Call deleted.'], 204);
+        } else {
+          $response = response()->json(['message' => 'Delete didn\'t work'], 500);
+        }
+      } else {
+        $response = response()->json(['message' => 'Can\'t delete call as it has updates.'], 500);
+      }
+    }
+
+    return $response;
   }
 
+  /**
+   * Retrieves the calls using simplePaginate.
+   *
+   * @return mixed
+   */
   public function getAll()
   {
-    return response()->json([], 501);
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-calls');
+    $userActionLog->details = "Accessed all calls via /get/all.";
+    if($userActionLog->log_action_id) $userActionLog->save();
+    return DB::connection('tenant')->table('calls')->simplePaginate();
   }
 
+  /**
+   * Get single call.
+   *
+   * @param $call_id
+   * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\MessageBag
+   */
   public function get($call_id)
   {
-    return response()->json([], 501);
+    // Validating request
+    $validator = Validator::make(['call_id' => $call_id], [
+      'client_id' => 'required|integer'
+    ]);
+
+    if ($validator->fails()) return $validator->errors();
+
+    $call = TenantCall::find($call_id);
+
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-call');
+
+    if (empty($call)) {
+      $response = response()->json(['message' => 'Call not found.'], 404);
+    } else {
+      $userActionLog->details = "Retrieved call " . $call->name;
+      if ($userActionLog->log_action_id) $userActionLog->save();
+      $response = response()->json(['message' => 'Call found.', 'call' => $call], 200);
+    }
+
+    return $response;
   }
 }
