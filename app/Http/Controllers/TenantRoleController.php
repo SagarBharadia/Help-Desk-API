@@ -45,7 +45,7 @@ class TenantRoleController extends Controller
     $role->protected_role = 0;
 
     if ($role->save()) {
-      $userActionLog->save();
+      if ($userActionLog->log_action_id) $userActionLog->save();
       $response = response()->json(['message' => 'Created role.'], 204);
     } else {
       $response = response()->json(['message' => 'Couldn\'t create role.'], 500);
@@ -121,7 +121,7 @@ class TenantRoleController extends Controller
           $permission->delete();
         }
         $role->delete();
-        $userActionLog->save();
+        if ($userActionLog->log_action_id) $userActionLog->save();
         $response = response()->json(['message' => 'Delete role.'], 204);
       } else {
         $response = response()->json(['message' => 'Unable to delete role as users are still assigned it.'], 500);
