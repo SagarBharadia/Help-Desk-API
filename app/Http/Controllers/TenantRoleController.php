@@ -75,22 +75,22 @@ class TenantRoleController extends Controller
     $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('updated-role');
 
-    if(!$role) {
+    if (!$role) {
       $response = response()->json(['message' => 'Couldn\'t find role.'], 404);
     } else {
-      $userActionLog->details = "Updated role ".$role->display_name.".";
+      $userActionLog->details = "Updated role " . $role->display_name . ".";
 
-      if(!empty($request->get('name'))) {
-        $userActionLog->details .= " Name[".$role->name."->".$request->get('name')."]";
+      if (!empty($request->get('name'))) {
+        $userActionLog->details .= " Name[" . $role->name . "->" . $request->get('name') . "]";
         $role->name = $request->get('name');
       }
-      if(!empty($request->get('display_name'))) {
-        $userActionLog->details .= " Display Name[".$role->display_name."->".$request->get('display_name')."]";
+      if (!empty($request->get('display_name'))) {
+        $userActionLog->details .= " Display Name[" . $role->display_name . "->" . $request->get('display_name') . "]";
         $role->display_name = $request->get('display_name');
       }
 
-      if($role->save()) {
-        if($userActionLog->log_action_id) $userActionLog->save();
+      if ($role->save()) {
+        if ($userActionLog->log_action_id) $userActionLog->save();
         $response = response()->json(['message' => 'Updated role.'], 204);
       } else {
         $response = response()->json(['message' => 'Couldn\'t save changes.'], 500);
@@ -102,7 +102,33 @@ class TenantRoleController extends Controller
 
   public function delete(Request $request)
   {
-    return response()->json([], 501);
+    $this->validate($request, [
+      'role_id' => 'required|integer'
+    ]);
+
+    $role = TenantRole::find($request->get('role_id'));
+
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('deleted-role');
+
+    if (!$role) {
+      $response = response()->json(['message' => 'Role not found.'], 404);
+    } else {
+      $userActionLog->details = "Deleted role " . $role->display_name . "(" . $role->name . ")";
+      if ($role->users->isEmpty()) {
+        foreach ($role->permissions as $permission) {
+          $permission->delete();
+        }
+        $role->delete();
+        $userActionLog->save();
+        $response = response()->json(['message' => 'Delete role.'], 204);
+      } else {
+        $response = response()->json(['message' => 'Unable to delete role as users are still assigned it.'], 500);
+      }
+    }
+
+    return $response;
   }
 
   public function getAll()

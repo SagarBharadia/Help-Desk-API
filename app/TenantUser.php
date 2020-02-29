@@ -61,7 +61,7 @@ class TenantUser extends Model implements AuthenticatableContract, AuthorizableC
      */
     public function role()
     {
-        return $this->belongsTo('App\TenantRole');
+        return $this->belongsTo('App\TenantRole', 'role_id');
     }
 
     /**

@@ -27,7 +27,7 @@ class TenantRole extends Model
      */
     public function users()
     {
-        return $this->hasMany('App\TenantUser');
+        return $this->hasMany('App\TenantUser', 'role_id');
     }
 
     /**
