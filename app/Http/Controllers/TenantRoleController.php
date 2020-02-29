@@ -7,6 +7,8 @@ use App\TenantRole;
 use App\TenantUserActionLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class TenantRoleController extends Controller
 {
@@ -100,6 +102,13 @@ class TenantRoleController extends Controller
     return $response;
   }
 
+  /**
+   * Delete role if no users are assigned it.
+   *
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   * @throws \Illuminate\Validation\ValidationException
+   */
   public function delete(Request $request)
   {
     $this->validate($request, [
@@ -131,13 +140,50 @@ class TenantRoleController extends Controller
     return $response;
   }
 
+  /**
+   * Retrieve all roles with simplePaginate.
+   *
+   * @return \Illuminate\Contracts\Pagination\Paginator
+   */
   public function getAll()
   {
-    return response()->json([], 501);
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-role');
+    $userActionLog->details = "Retrieved all roles using /get/all";
+    if ($userActionLog->log_action_id) $userActionLog->save();
+    return DB::connection('tenant')->table('roles')->simplePaginate();
   }
 
+  /**
+   * Retrieve single role.
+   *
+   * @param $role_id
+   * @return \Illuminate\Http\JsonResponse|\Illuminate\Support\MessageBag
+   */
   public function get($role_id)
   {
-    return response()->json([], 501);
+    // Validating request
+    $validator = Validator::make(['role_id' => $role_id], [
+      'role_id' => 'required|integer'
+    ]);
+
+    if ($validator->fails()) return $validator->errors();
+
+    $role = TenantRole::find($role_id);
+
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-role');
+
+    if (empty($role)) {
+      $response = response()->json(['message' => 'Role not found.'], 404);
+    } else {
+      $userActionLog->details = "Retrieved role " . $role->name;
+      if ($userActionLog->log_action_id) $userActionLog->save();
+      $response = response()->json(['message' => 'Role found.', 'role' => $role], 200);
+    }
+
+    return $response;
   }
 }
