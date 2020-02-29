@@ -11,6 +11,7 @@ class DropTablesForTest extends Seeder
    */
   public function run()
   {
+    DB::connection('tenant')->table('call_updates')->delete();
     DB::connection('tenant')->table('calls')->delete();
     DB::connection('tenant')->table('clients')->delete();
     DB::connection('tenant')->table('users')->where('id', '!=', 1)->delete();
