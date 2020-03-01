@@ -209,4 +209,14 @@ class TenantUserController extends Controller
 
     return $response;
   }
+
+  /**
+   * Function that just returns 200 if valid. At this stage the auth guard would've already checked if the user is authenticated.
+   *
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function checkToken()
+  {
+    return response()->json([], 200);
+  }
 }

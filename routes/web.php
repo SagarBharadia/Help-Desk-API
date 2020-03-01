@@ -55,6 +55,9 @@ $router->group([
     'auth:tenant_api'
   ]
 ], function () use ($router) {
+  // Check if token relates to this company
+  $router->get('check-token', 'TenantUserController@checkToken');
+
   // Platform Level User Routes
   $router->post('users/create', ['middleware' => 'perm:create-users', 'uses' => 'TenantUserController@create']);
   $router->post('users/update', ['middleware' => 'perm:update-users', 'uses' => 'TenantUserController@update']);
