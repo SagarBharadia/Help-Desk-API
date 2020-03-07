@@ -55,7 +55,7 @@ class TenantAuthController extends Controller
     } else {
       $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
       $userActionLog->log_action_id = TenantLogAction::getIdOfAction('user-logged-in');
-      $response = $this->respondWithToken($token);
+      $response = $this->respondWithToken($token, $request->route('company_subdirectory'));
     }
 
     if(!is_null($userActionLog)) $userActionLog->save();
