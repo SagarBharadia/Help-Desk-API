@@ -65,6 +65,7 @@ $app->singleton(
      'auth' => \App\Http\Middleware\Authenticate::class,
      'role' => \App\Http\Middleware\RoleMiddleware::class,
      'addTenantConnection' => \App\Http\Middleware\AddTenantConnectionMiddleware::class,
+     'addTenantSecret' => \App\Http\Middleware\AddTenantSecretMiddleware::class,
      'perm' => \App\Http\Middleware\PermissionMiddleware::class
  ]);
 

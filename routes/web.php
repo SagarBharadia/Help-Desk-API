@@ -42,6 +42,7 @@ $router->group([
   'prefix' => '{company_subdirectory}/api',
   'middleware' => [
     'addTenantConnection',
+    'addTenantSecret'
   ]
 ], function () use ($router) {
   $router->post('login', 'TenantAuthController@login');
@@ -52,6 +53,7 @@ $router->group([
   'prefix' => '{company_subdirectory}/api',
   'middleware' => [
     'addTenantConnection',
+    'addTenantSecret',
     'auth:tenant_api'
   ]
 ], function () use ($router) {

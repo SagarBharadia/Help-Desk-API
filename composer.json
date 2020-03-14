@@ -6,9 +6,10 @@
     "type": "project",
     "require": {
         "php": "^7.2",
+        "ext-pdo": "*",
         "laravel/lumen-framework": "^6.0",
-        "tymon/jwt-auth": "dev-develop",
-        "ext-pdo": "*"
+        "league/flysystem": "^1.0",
+        "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.4",

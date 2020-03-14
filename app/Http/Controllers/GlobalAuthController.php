@@ -79,7 +79,7 @@ class GlobalAuthController extends Controller
         if(! $token = Auth::guard('global_api')->attempt($credentials)) {
             $response =  response()->json(['message' => 'Unauthorized.'], 401);
         } else {
-            $response = $this->respondWithToken($token);
+            $response = $this->respondWithToken($token, "super");
         }
 
         // Else return with token
