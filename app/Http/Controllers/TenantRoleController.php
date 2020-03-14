@@ -170,7 +170,7 @@ class TenantRoleController extends Controller
 
     if ($validator->fails()) return $validator->errors();
 
-    $role = TenantRole::find($role_id);
+    $role = TenantRole::with('permissions')->find($role_id);
 
     $userActionLog = new TenantUserActionLog();
     $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
