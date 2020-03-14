@@ -45,7 +45,7 @@ class TenantAuthController extends Controller
     if (!$token = Auth::guard('tenant_api')->attempt($credentials)) {
       // Getting the user that was attempted
       $attemptedUser = TenantUser::where('email_address', $request->get('email_address'))->first();
-      if(!empty($attemptedUser)) {
+      if (!empty($attemptedUser)) {
         $userActionLog->user_id = $attemptedUser->id;
         $userActionLog->log_action_id = TenantLogAction::getIdOfAction('user-attempted-to-login');
       } else {
@@ -55,10 +55,14 @@ class TenantAuthController extends Controller
     } else {
       $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
       $userActionLog->log_action_id = TenantLogAction::getIdOfAction('user-logged-in');
-      $response = $this->respondWithToken($token, $request->route('company_subdirectory'));
+      if (!Auth::guard('tenant_api')->user()->active) {
+        $response = response()->json(['message' => 'User not active.'], 401);
+      } else {
+        $response = $this->respondWithToken($token, $request->route('company_subdirectory'));
+      }
     }
 
-    if(!is_null($userActionLog)) $userActionLog->save();
+    if (!is_null($userActionLog)) $userActionLog->save();
 
     // Else return with token
     return $response;
