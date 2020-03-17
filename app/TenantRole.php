@@ -14,6 +14,13 @@ class TenantRole extends Model
   protected $table = 'roles';
 
   /**
+   * What relations should be returned with the user.
+   *
+   * @var array
+   */
+  protected $with = ['permissions'];
+
+  /**
    * The connection name for the model.
    *
    * @var string

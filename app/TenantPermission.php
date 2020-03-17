@@ -13,6 +13,13 @@ class TenantPermission extends Model
      */
     protected $table = 'permissions';
 
+  /**
+   * What relations should be returned with the user.
+   *
+   * @var array
+   */
+    protected $with = ['permissionAction'];
+
     /**
      * The connection name for the model.
      *
