@@ -145,14 +145,23 @@ class TenantRoleController extends Controller
    *
    * @return \Illuminate\Contracts\Pagination\Paginator
    */
-  public function getAll()
+  public function getAll(Request $request)
   {
     $userActionLog = new TenantUserActionLog();
     $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-role');
     $userActionLog->details = "Retrieved all roles using /get/all";
+
+    if ($request->get("forForm") && $request->get('forForm') === "true") {
+      $masterRole = TenantRole::where("name", "=", "master")->first();
+      $data = TenantRole::all()->except($masterRole->id);
+      $userActionLog->details .= "?forForm='true'";
+    } else {
+      $data = DB::connection('tenant')->table('roles')->simplePaginate();
+    }
+
     if ($userActionLog->log_action_id) $userActionLog->save();
-    return DB::connection('tenant')->table('roles')->simplePaginate();
+    return $data;
   }
 
   /**
