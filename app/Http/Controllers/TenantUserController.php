@@ -39,7 +39,7 @@ class TenantUserController extends Controller
       'role_id' => 'required|integer',
       'first_name' => 'required|string',
       'second_name' => 'required|string',
-      'email_address' => 'required|email|unique:users',
+      'email_address' => 'required|email|unique:tenant.users',
       'password' => ['string', 'required', 'confirmed', new StrongPassword]
     ]);
 
@@ -80,7 +80,7 @@ class TenantUserController extends Controller
       'role_id' => 'integer',
       'first_name' => 'string',
       'second_name' => 'string',
-      'email_address' => 'email|unique:users',
+      'email_address' => 'email|unique:tenant.users',
       'password' => ['string', 'confirmed', new StrongPassword]
     ]);
 

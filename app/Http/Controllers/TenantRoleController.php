@@ -32,8 +32,8 @@ class TenantRoleController extends Controller
   public function create(Request $request)
   {
     $this->validate($request, [
-      'name' => 'required|string',
-      'display_name' => 'required|string'
+      'name' => 'required|string|unique:tenant.roles',
+      'display_name' => 'required|string|unique:tenant.roles'
     ]);
 
     $userActionLog = new TenantUserActionLog();
@@ -67,8 +67,8 @@ class TenantRoleController extends Controller
   {
     $this->validate($request, [
       'role_id' => 'required|integer',
-      'name' => 'string',
-      'display_name' => 'string'
+      'name' => 'string|unique:tenant.roles',
+      'display_name' => 'string|unique:tenant.roles'
     ]);
 
     $role = TenantRole::find($request->get('role_id'));
