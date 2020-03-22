@@ -34,8 +34,8 @@ class TenantClientController extends Controller
   {
     $this->validate($request, [
       'name' => 'required|string',
-      'email_address' => 'required|string',
-      'phone_number' => 'required|string|numeric'
+      'email_address' => 'required|email|unique:tenant.clients',
+      'phone_number' => 'required|string|numeric|unique:tenant.clients'
     ]);
 
     $client = new TenantClient();
@@ -70,8 +70,8 @@ class TenantClientController extends Controller
     $this->validate($request, [
       'client_id' => 'integer',
       'name' => 'string',
-      'email_address' => 'string|email',
-      'phone_number' => 'string'
+      'email_address' => 'string|email|unique:tenant.clients',
+      'phone_number' => 'string|unique:tenant.clients'
     ]);
 
     $client = TenantClient::find($request->get('client_id'));
