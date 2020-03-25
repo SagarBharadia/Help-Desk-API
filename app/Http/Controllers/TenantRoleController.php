@@ -153,8 +153,7 @@ class TenantRoleController extends Controller
     $userActionLog->details = "Retrieved all roles using /get/all";
 
     if ($request->get("forForm") && $request->get('forForm') === "true") {
-      $masterRole = TenantRole::where("name", "=", "master")->first();
-      $data = TenantRole::all()->except($masterRole->id);
+      $data = TenantRole::all();
       $userActionLog->details .= "?forForm='true'";
     } else {
       $data = DB::connection('tenant')->table('roles')->simplePaginate();
