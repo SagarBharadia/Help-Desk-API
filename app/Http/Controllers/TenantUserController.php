@@ -34,6 +34,7 @@ class TenantUserController extends Controller
    */
   public function create(Request $request)
   {
+    // TODO: Do not allow users to be created with the Master role.
     // validate the request
     $this->validate($request, [
       'role_id' => 'required|integer',
@@ -74,13 +75,14 @@ class TenantUserController extends Controller
    */
   public function update(Request $request)
   {
+    // TODO: Do not allow users to be updated with the Master role.
     // Validate the request
     $this->validate($request, [
       'user_id' => 'required|integer',
       'role_id' => 'integer',
       'first_name' => 'string',
       'second_name' => 'string',
-      'email_address' => 'email|unique:tenant.users',
+      'email_address' => 'email|exists:tenant.users',
       'password' => ['string', 'confirmed', new StrongPassword]
     ]);
 
@@ -136,6 +138,7 @@ class TenantUserController extends Controller
    */
   public function toggleActive(Request $request)
   {
+    // TODO: Do not allow users to be deactivated with the Master role.
     // Validate the request
     $this->validate($request, [
       'user_id' => 'required|integer'

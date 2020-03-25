@@ -67,6 +67,11 @@ $router->group([
   $router->get('users/get/all', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getAll']);
   $router->get('users/get/{user_id}', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@get']);
 
+  // TODO: Need to create routes to load user action logs with appropriate permission to read users
+  // Not to be confused with "self" routes which have not been created yet
+
+  // TODO: Need to create self routes with self permission or middleware to check they are editting themselves
+
   // Platform Level Role Routes
   $router->post('roles/create', ['middleware' => 'perm:create-roles', 'uses' => 'TenantRoleController@create']);
   $router->post('roles/update', ['middleware' => 'perm:update-roles', 'uses' => 'TenantRoleController@update']);
