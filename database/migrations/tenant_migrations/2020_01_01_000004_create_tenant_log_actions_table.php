@@ -124,6 +124,10 @@ class CreateTenantLogActionsTable extends Migration
       [
         'name' => 'User attempted to login',
         'action' => 'user-attempted-to-login'
+      ],
+      [
+        'name' => 'Read All Permissions',
+        'action' => 'read-all-permissions'
       ]
     ]);
   }

@@ -79,6 +79,9 @@ $router->group([
   $router->get('roles/get/all', ['middleware' => 'perm:read-roles', 'uses' => 'TenantRoleController@getAll']);
   $router->get('roles/get/{role_id}', ['middleware' => 'perm:read-roles', 'uses' => 'TenantRoleController@get']);
 
+  // Platform Level Permissions Routes
+  $router->get('permissions/get/all', ['middleware' => 'perm:create-roles', 'uses' => 'TenantPermissionController@getAll']);
+
   // Platform Level Client Routes
   $router->post('clients/create', ['middleware' => 'perm:create-client', 'uses' => 'TenantClientController@create']);
   $router->post('clients/update', ['middleware' => 'perm:update-client', 'uses' => 'TenantClientController@update']);
