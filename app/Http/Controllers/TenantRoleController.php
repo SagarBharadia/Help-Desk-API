@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\TenantLogAction;
+use App\TenantPermission;
+use App\TenantPermissionAction;
 use App\TenantRole;
 use App\TenantUserActionLog;
 use Illuminate\Http\Request;
@@ -33,24 +35,52 @@ class TenantRoleController extends Controller
   {
     $this->validate($request, [
       'name' => 'required|string|unique:tenant.roles',
-      'display_name' => 'required|string|unique:tenant.roles'
+      'display_name' => 'required|string|unique:tenant.roles',
+      'appliedPermissions' => 'array',
     ]);
 
-    $userActionLog = new TenantUserActionLog();
-    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
-    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('created-role');
-    $userActionLog->details = "Created role " . $request->get('name');
+    $appliedPermissions = $request->get('appliedPermissions');
+    $permErrors = [];
+    if (!empty($appliedPermissions) && is_array($appliedPermissions)) {
+      foreach ($appliedPermissions as $appliedPerm) {
+        $permAction = TenantPermissionAction::where('action', '=', $appliedPerm)->first();
+        if (empty($permAction)) {
+          $msg = $appliedPerm . " doesn't exist.";
+          array_push($permErrors, $msg);
+        }
+      }
+    }
 
-    $role = new TenantRole();
-    $role->name = $request->get('name');
-    $role->display_name = $request->get('display_name');
-    $role->protected_role = 0;
-
-    if ($role->save()) {
-      if ($userActionLog->log_action_id) $userActionLog->save();
-      $response = response()->json(['message' => 'Created role.'], 204);
+    if (!empty($permErrors)) {
+      $response = response()->json(['appliedPermissions' => $permErrors ], 422);
     } else {
-      $response = response()->json(['message' => 'Couldn\'t create role.'], 500);
+      $userActionLog = new TenantUserActionLog();
+      $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+      $userActionLog->log_action_id = TenantLogAction::getIdOfAction('created-role');
+      $userActionLog->details = "Created role " . $request->get('name');
+
+      $role = new TenantRole();
+      $role->name = $request->get('name');
+      $role->display_name = $request->get('display_name');
+      $role->protected_role = 0;
+
+      $role->save();
+
+      if ($role->save()) {
+
+        foreach ($appliedPermissions as $applPerm) {
+          $permAction = TenantPermissionAction::where('action', '=', $applPerm)->first();
+          $perm = new TenantPermission();
+          $perm->permission_action_id = $permAction->id;
+          $perm->role_id = $role->id;
+          $perm->save();
+        }
+
+        if ($userActionLog->log_action_id) $userActionLog->save();
+        $response = response()->json(['message' => 'Created role.'], 201);
+      } else {
+        $response = response()->json(['message' => 'Couldn\'t create role.'], 500);
+      }
     }
 
     return $response;
