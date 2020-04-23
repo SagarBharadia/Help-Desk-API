@@ -159,7 +159,7 @@ class TenantRoleController extends Controller
       }
     }
 
-//    return $response;
+    return $response;
   }
 
   /**
