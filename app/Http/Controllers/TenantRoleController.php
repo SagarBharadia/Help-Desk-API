@@ -153,7 +153,7 @@ class TenantRoleController extends Controller
         }
 
         if ($userActionLog->log_action_id) $userActionLog->save();
-        $response = response()->json(['message' => 'Updated role.'], 201);
+        $response = response()->json(['message' => 'Updated role.'], 200);
       } else {
         $response = response()->json(['message' => 'Couldn\'t save changes.'], 500);
       }
@@ -191,7 +191,7 @@ class TenantRoleController extends Controller
         }
         $role->delete();
         if ($userActionLog->log_action_id) $userActionLog->save();
-        $response = response()->json(['message' => 'Delete role.'], 201);
+        $response = response()->json(['message' => 'Delete role.'], 200);
       } else {
         $response = response()->json(['message' => 'Unable to delete role as users are still assigned it.'], 403);
       }
