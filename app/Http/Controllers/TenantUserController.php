@@ -120,7 +120,7 @@ class TenantUserController extends Controller
       if($user->save()) {
         if($userActionLog->log_action_id) $userActionLog->save();
 
-        $response = response()->json(['message' => 'User updated.'], 204);
+        $response = response()->json(['message' => 'User updated.'], 201);
       } else {
         $response = response()->json(['message' => 'User updates could not be saved.'], 500);
       }
@@ -157,7 +157,7 @@ class TenantUserController extends Controller
       if($user->save()) {
         if($userActionLog->log_action_id) $userActionLog->save();
 
-        $response = response()->json(['message' => 'User updated.'], 204);
+        $response = response()->json(['message' => 'User updated.'], 201);
       } else {
         $response = response()->json(['message' => 'Could not toggle active state of user.'], 500);
       }
