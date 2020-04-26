@@ -50,7 +50,7 @@ class TenantClientController extends Controller
 
     if ($client->save()) {
       if ($userActionLog->log_action_id) $userActionLog->save();
-      $response = response()->json([], 204);
+      $response = response()->json(['message' => 'Created client.'], 201);
     } else {
       $response = response()->json(['message' => 'Could not save client.'], 500);
     }
@@ -98,7 +98,7 @@ class TenantClientController extends Controller
 
       if ($client->save()) {
         if ($userActionLog->log_action_id) $userActionLog->save();
-        $response = response()->json([], 204);
+        $response = response()->json(['message' => 'Updated client.'], 200);
       } else {
         $response = response()->json(['message' => 'Could not update client.'], 500);
       }
@@ -132,7 +132,7 @@ class TenantClientController extends Controller
         $userActionLog->details = "Deleted client " . $client->name . "(" . $client->email_address . ")";
         if ($client->delete()) {
           if ($userActionLog->log_action_id) $userActionLog->save();
-          $response = response()->json([], 204);
+          $response = response()->json(['message' => 'Deleted client.'], 200);
         } else {
           $response = response()->json(['message' => 'Client deletion failed.'], 500);
         }
