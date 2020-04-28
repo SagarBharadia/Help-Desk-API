@@ -68,10 +68,10 @@ class TenantClientController extends Controller
   public function update(Request $request)
   {
     $this->validate($request, [
-      'client_id' => 'integer',
+      'client_id' => 'integer|required',
       'name' => 'string',
-      'email_address' => 'string|email|unique:tenant.clients',
-      'phone_number' => 'string|unique:tenant.clients'
+      'email_address' => 'string|email|unique:tenant.clients,email_address,'.$request->get("client_id"),
+      'phone_number' => 'string|unique:tenant.clients,phone_number,'.$request->get("client_id")
     ]);
 
     $client = TenantClient::find($request->get('client_id'));
