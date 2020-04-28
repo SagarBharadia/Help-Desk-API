@@ -192,7 +192,7 @@ class TenantCallController extends Controller
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-calls');
     $userActionLog->details = "Accessed all calls via /get/all.";
     if($userActionLog->log_action_id) $userActionLog->save();
-    return DB::connection('tenant')->table('calls')->simplePaginate();
+    return TenantCall::with('client')->simplePaginate();
   }
 
   /**

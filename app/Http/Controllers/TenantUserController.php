@@ -178,7 +178,7 @@ class TenantUserController extends Controller
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-user');
     $userActionLog->details = "Accessed all users via /get/all";
     if($userActionLog->log_action_id) $userActionLog->save();
-    return DB::connection('tenant')->table('users')->select(['id', 'first_name', 'second_name', 'email_address', 'active'])->simplePaginate();
+    return TenantUser::select(['id', 'first_name', 'second_name', 'email_address', 'active'])->simplePaginate();
   }
 
   /**

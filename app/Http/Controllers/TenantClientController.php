@@ -8,7 +8,6 @@ use App\TenantUser;
 use App\TenantUserActionLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class TenantClientController extends Controller
@@ -156,7 +155,7 @@ class TenantClientController extends Controller
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-client');
     $userActionLog->details = "Retrieved all clients using /clients/get/all";
     if ($userActionLog->log_action_id) $userActionLog->save();
-    return DB::connection('tenant')->table('clients')->simplePaginate();
+    return TenantClient::simplePaginate();
   }
 
   /**
