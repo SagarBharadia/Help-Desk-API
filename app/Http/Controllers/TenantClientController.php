@@ -69,8 +69,8 @@ class TenantClientController extends Controller
     $this->validate($request, [
       'client_id' => 'integer|required',
       'name' => 'string',
-      'email_address' => 'string|email|unique:tenant.clients,email_address,'.$request->get("client_id"),
-      'phone_number' => 'string|unique:tenant.clients,phone_number,'.$request->get("client_id")
+      'email_address' => 'string|email|unique:tenant.clients,email_address,' . $request->get("client_id"),
+      'phone_number' => 'string|unique:tenant.clients,phone_number,' . $request->get("client_id")
     ]);
 
     $client = TenantClient::find($request->get('client_id'));
@@ -148,14 +148,22 @@ class TenantClientController extends Controller
    *
    * @return \Illuminate\Contracts\Pagination\Paginator
    */
-  public function getAll()
+  public function getAll(Request $request)
   {
     $userActionLog = new TenantUserActionLog();
     $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-client');
     $userActionLog->details = "Retrieved all clients using /clients/get/all";
+
+    if ($request->get("forForm") && $request->get("forForm") === "true") {
+      $data = TenantClient::all();
+      $userActionLog->details .= "?forForm='true'";
+    } else {
+      $data = TenantClient::simplePaginate();
+    }
+
     if ($userActionLog->log_action_id) $userActionLog->save();
-    return TenantClient::simplePaginate();
+    return $data;
   }
 
   /**
