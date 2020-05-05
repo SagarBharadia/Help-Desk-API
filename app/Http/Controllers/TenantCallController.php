@@ -102,7 +102,7 @@ class TenantCallController extends Controller
     } else {
       // Check to see if the user is master or the user is the current analyst for the call.
       if ($call->current_analyst_id != Auth::guard('tenant_api')->user()->id && !Auth::guard('tenant_api')->user()->role->isRole('master')) {
-        $response = response()->json(['message' => 'Not allowed.'], 403);
+        $response = response()->json(['message' => 'Unable to update call. You have not been assigned this call.'], 403);
       } else {
         $issues = [];
         $callUpdate = new TenantCallUpdate();
@@ -129,15 +129,17 @@ class TenantCallController extends Controller
           }
         }
 
-        if($request->get("current_analyst_id") !== $call->current_analyst_id) {
+        if($request->get("current_analyst_id") !== $call->current_analyst_id && Auth::guard('tenant_api')->user()->isAllowedTo("change-analyst-for-call")) {
           $newAnalyst = TenantUser::find($request->get("current_analyst_id"));
           if(!$newAnalyst) {
             $userActionLog->details .= " new analyst not updated (not found).";
-            array_push($issues, "Analyst not update. New analyst not found.");
+            array_push($issues, "Analyst not updated. New analyst not found.");
           } else {
             $userActionLog->details .= " analyst updated to ".$newAnalyst->first_name." ".$newAnalyst->second_name.".";
             $call->current_analyst_id = $newAnalyst->id;
           }
+        } else {
+          array_push($issues, "Not permitted to update analysts. Skipped.");
         }
 
         // If the resolved is present then that means the checkbox is checked and it is resolved.
@@ -154,13 +156,13 @@ class TenantCallController extends Controller
         if ($call->save()) {
           $message = "Call updated.";
           if ($callUpdate->save()) {
+            $message .= " ".implode(" ", $issues);
             $message .= " Created new call update record.";
           } else {
             $message .= " Unable to create the call update record (details not saved).";
           }
-          $status = $userActionLog->save();
 
-          $response = response()->json(['message' => $message, 'status' => $userActionLog], 200);
+          $response = response()->json(['message' => $message], 200);
         } else {
           $response = response()->json(['message' => 'Call updates not saved.'], 500);
         }

@@ -82,6 +82,10 @@ class CreateTenantPermissionActionsTable extends Migration
             'action' => 'delete-call'
           ],
           [
+            'name' => 'Change Analyst for Call',
+            'action' => 'change-analyst-for-call'
+          ],
+          [
             'name' => 'Create Report',
             'action' => 'create-report'
           ],
