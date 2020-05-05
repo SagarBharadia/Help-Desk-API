@@ -171,14 +171,31 @@ class TenantUserController extends Controller
    *
    * @return \Illuminate\Contracts\Pagination\Paginator
    */
-  public function getAll()
+  public function getAll(Request $request)
   {
     $userActionLog = new TenantUserActionLog();
     $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-user');
     $userActionLog->details = "Accessed all users via /get/all";
+
+    $forForm = false;
+
+    if ($request->get("forForm") && $request->get('forForm') === "true") {
+      $forForm = true;
+    }
+
+    $response = null;
+    $query = TenantUser::select(['id', 'first_name', 'second_name', 'email_address', 'active']);
+
+    if($forForm) {
+      $response = $query->get();
+    } else {
+      $response = $query->simplePaginate();
+    }
+
     if($userActionLog->log_action_id) $userActionLog->save();
-    return TenantUser::select(['id', 'first_name', 'second_name', 'email_address', 'active'])->simplePaginate();
+
+    return $response;
   }
 
   /**
