@@ -9,7 +9,6 @@ use App\TenantRole;
 use App\TenantUserActionLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class TenantRoleController extends Controller
@@ -218,7 +217,7 @@ class TenantRoleController extends Controller
       $data = TenantRole::all();
       $userActionLog->details .= "?forForm='true'";
     } else {
-      $data = DB::connection('tenant')->table('roles')->simplePaginate();
+      $data = TenantRole::simplePaginate();
     }
 
     if ($userActionLog->log_action_id) $userActionLog->save();

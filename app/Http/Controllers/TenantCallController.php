@@ -6,10 +6,14 @@ namespace App\Http\Controllers;
 use App\TenantCall;
 use App\TenantCallUpdate;
 use App\TenantLogAction;
+use App\TenantPermission;
+use App\TenantPermissionAction;
+use App\TenantRole;
 use App\TenantUserActionLog;
+use App\TenantUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class TenantCallController extends Controller
@@ -39,17 +43,37 @@ class TenantCallController extends Controller
       'caller_name' => 'required|string',
       'name' => 'required|string',
       'details' => 'required|string',
-      'tags' => 'required|string'
+      'tags' => 'required|array'
     ]);
+
+    // Getting roles which have the update-call perm with the least calls assigned to them.
+    $permissionAction = TenantPermissionAction::getByAction("update-call");
+    $permissions = TenantPermission::where('permission_action_id', $permissionAction->id)->get();
+    $roleIDs = [];
+    foreach ($permissions as $perm) {
+      array_push($roleIDs, $perm->role->id);
+    }
+    $users = TenantUser::whereIn('role_id', $roleIDs)->get();
+    $users = $users->sort(function ($a, $b) {
+      $aCount = $a->currentCalls->count();
+      $bCount = $b->currentCalls->count();
+      return $aCount - $bCount;
+    })->flatten();
 
     $call = new TenantCall();
     $call->receiver_id = Auth::guard('tenant_api')->user()->id;
-    $call->current_analyst_id = 0;
+    $call->current_analyst_id = $users[0]->id;
     $call->client_id = $request->get('client_id');
     $call->caller_name = $request->get('caller_name');
     $call->name = $request->get('name');
     $call->details = $request->get('details');
-    $call->tags = $request->get('tags');
+    $trimmedTags = array_map(function ($item) {
+      $item = trim($item);
+      $item = strtolower($item);
+      return $item;
+    }, $request->get("tags"));
+    $trimmedTags = array_unique($trimmedTags);
+    $call->tags = implode(" | ", $trimmedTags);
     $call->resolved = 0;
 
     $userActionLog = new TenantUserActionLog();
@@ -58,7 +82,7 @@ class TenantCallController extends Controller
     $userActionLog->details = "Created call '" . $call->name . "'.";
 
     if ($call->save()) {
-      $response = response()->json([], 204);
+      $response = response()->json(["message" => "Call created"], 200);
       if ($userActionLog->log_action_id) $userActionLog->save();
     } else {
       $response = response()->json(['message' => 'Could not save call.'], 500);
@@ -80,8 +104,9 @@ class TenantCallController extends Controller
     $this->validate($request, [
       'call_id' => 'required|integer',
       'details' => 'required|string',
-      'tags' => 'string',
-      'resolved' => 'string'
+      'tags' => 'required|array',
+      'resolved' => 'bool',
+      'current_analyst_id' => 'required|integer'
     ]);
 
     $call = TenantCall::find($request->get('call_id'));
@@ -95,8 +120,9 @@ class TenantCallController extends Controller
     } else {
       // Check to see if the user is master or the user is the current analyst for the call.
       if ($call->current_analyst_id != Auth::guard('tenant_api')->user()->id && !Auth::guard('tenant_api')->user()->role->isRole('master')) {
-        $response = response()->json(['message' => 'Not allowed.'], 403);
+        $response = response()->json(['message' => 'Unable to update call. You have not been assigned this call.'], 403);
       } else {
+        $issues = [];
         $callUpdate = new TenantCallUpdate();
         $callUpdate->user_id = Auth::guard('tenant_api')->user()->id;
         $callUpdate->call_id = $call->id;
@@ -109,15 +135,38 @@ class TenantCallController extends Controller
         }
 
         if (!empty($request->get('tags'))) {
-          $userActionLog->details .= " tags,";
-          $call->tags = $request->get('tags');
+          $trimmedTags = array_map(function ($item) {
+            $item = trim($item);
+            $item = strtolower($item);
+            return $item;
+          }, $request->get("tags"));
+          $trimmedTags = array_unique($trimmedTags);
+          if ($call->tags !== $trimmedTags) {
+            $call->tags = implode(" | ", $trimmedTags);
+            $userActionLog->details .= " tags,";
+          }
+        }
+
+        if ($request->get("current_analyst_id") !== $call->current_analyst_id && Auth::guard('tenant_api')->user()->isAllowedTo("change-analyst-for-call")) {
+          $newAnalyst = TenantUser::find($request->get("current_analyst_id"));
+          if (!$newAnalyst) {
+            $userActionLog->details .= " new analyst not updated (not found).";
+            array_push($issues, "Analyst not updated. New analyst not found.");
+          } else if (!$newAnalyst->isAllowedTo('update-call')) {
+            return response()->json(['message' => 'Cannot update analyst to this user as they lack the perm update-call.'], 403);
+          } else {
+            $userActionLog->details .= " analyst updated to " . $newAnalyst->first_name . " " . $newAnalyst->second_name . ".";
+            $call->current_analyst_id = $newAnalyst->id;
+          }
+        } else {
+          array_push($issues, "Not permitted to update analysts. Skipped.");
         }
 
         // If the resolved is present then that means the checkbox is checked and it is resolved.
         // Also checking to make sure it equals yes, if there is no resolved field, it means
         // the form was submitted with the resolved checkbox unticked meaning it is not solved.
         if (!empty($request->get('resolved'))) {
-          if ($request->get('resolved') == 'yes') {
+          if ($request->get('resolved') == 'true') {
             $call->resolved = 1;
           }
         } else {
@@ -127,13 +176,13 @@ class TenantCallController extends Controller
         if ($call->save()) {
           $message = "Call updated.";
           if ($callUpdate->save()) {
+            $message .= " " . implode(" ", $issues);
             $message .= " Created new call update record.";
           } else {
             $message .= " Unable to create the call update record (details not saved).";
           }
-          $userActionLog->save();
 
-          $response = response()->json(['message' => $message], 204);
+          $response = response()->json(['message' => $message], 200);
         } else {
           $response = response()->json(['message' => 'Call updates not saved.'], 500);
         }
@@ -167,8 +216,8 @@ class TenantCallController extends Controller
     } else {
       if ($call->updates->isEmpty()) {
         if ($call->delete()) {
-          if($userActionLog->log_action_id) $userActionLog->save();
-          $response = response()->json(['message' => 'Call deleted.'], 204);
+          if ($userActionLog->log_action_id) $userActionLog->save();
+          $response = response()->json(['message' => 'Call deleted.'], 200);
         } else {
           $response = response()->json(['message' => 'Delete didn\'t work'], 500);
         }
@@ -185,14 +234,59 @@ class TenantCallController extends Controller
    *
    * @return mixed
    */
-  public function getAll()
+  public function getAll(Request $request)
   {
+    $this->validate($request, [
+      'resolved' => 'string',
+      'created_at' => 'string',
+      'handled_by' => 'string',
+      'form' => 'string'
+    ]);
     $userActionLog = new TenantUserActionLog();
     $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-calls');
     $userActionLog->details = "Accessed all calls via /get/all.";
-    if($userActionLog->log_action_id) $userActionLog->save();
-    return DB::connection('tenant')->table('calls')->simplePaginate();
+
+    $tenantCallQuery = TenantCall::with(['client' => function ($query) {
+      $query->select(['id', 'name']);
+    }]);
+
+    $resolvedFilter = strtolower($request->get('resolved'));
+    if ($resolvedFilter) {
+      if ($resolvedFilter == "yes") {
+        $tenantCallQuery = $tenantCallQuery->where('resolved', '=', 1);
+      } else if ($resolvedFilter == "no") {
+        $tenantCallQuery = $tenantCallQuery->where('resolved', '=', 0);
+      }
+    }
+
+    $handledByFilter = strtolower($request->get('handled_by'));
+    if ($handledByFilter) {
+      if ($handledByFilter == "self") {
+        $tenantCallQuery = $tenantCallQuery->where('current_analyst_id', '=', Auth::guard('tenant_api')->user()->id);
+      }
+    }
+
+    $createdAtFilter = $request->get('created_at');
+    if ($createdAtFilter) {
+      if ($createdAtFilter == 'asc') {
+        $tenantCallQuery = $tenantCallQuery->orderBy('created_at', 'asc');
+      } else if ($createdAtFilter == 'desc') {
+        $tenantCallQuery = $tenantCallQuery->orderBy('created_at', 'desc');
+      }
+    }
+
+    $forForm = $request->get('forForm');
+    if ($forForm) {
+      if ($forForm == 'true') {
+        $tenantCallQuery = $tenantCallQuery->get();
+      }
+    } else {
+      $tenantCallQuery = $tenantCallQuery->simplePaginate(5);
+    }
+
+    if ($userActionLog->log_action_id) $userActionLog->save();
+    return $tenantCallQuery;
   }
 
   /**
@@ -205,12 +299,12 @@ class TenantCallController extends Controller
   {
     // Validating request
     $validator = Validator::make(['call_id' => $call_id], [
-      'client_id' => 'required|integer'
+      'call_id' => 'required|integer'
     ]);
 
     if ($validator->fails()) return $validator->errors();
 
-    $call = TenantCall::find($call_id);
+    $call = TenantCall::with(['updates', 'client', 'currentAnalyst', 'receiver'])->find($call_id);
 
     $userActionLog = new TenantUserActionLog();
     $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
@@ -219,7 +313,10 @@ class TenantCallController extends Controller
     if (empty($call)) {
       $response = response()->json(['message' => 'Call not found.'], 404);
     } else {
-      $userActionLog->details = "Retrieved call " . $call->name;
+      $call = $call->toArray();
+      $call['tags'] = explode(" | ", $call['tags']);
+
+      $userActionLog->details = "Retrieved call " . $call['name'];
       if ($userActionLog->log_action_id) $userActionLog->save();
       $response = response()->json(['message' => 'Call found.', 'call' => $call], 200);
     }
