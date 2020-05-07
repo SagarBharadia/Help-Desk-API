@@ -6,9 +6,13 @@ namespace App\Http\Controllers;
 use App\TenantCall;
 use App\TenantCallUpdate;
 use App\TenantLogAction;
+use App\TenantPermission;
+use App\TenantPermissionAction;
+use App\TenantRole;
 use App\TenantUserActionLog;
 use App\TenantUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -42,14 +46,28 @@ class TenantCallController extends Controller
       'tags' => 'required|array'
     ]);
 
+    // Getting roles which have the update-call perm with the least calls assigned to them.
+    $permissionAction = TenantPermissionAction::getByAction("update-call");
+    $permissions = TenantPermission::where('permission_action_id', $permissionAction->id)->get();
+    $roleIDs = [];
+    foreach ($permissions as $perm) {
+      array_push($roleIDs, $perm->role->id);
+    }
+    $users = TenantUser::whereIn('role_id', $roleIDs)->get();
+    $users = $users->sort(function ($a, $b) {
+      $aCount = $a->currentCalls->count();
+      $bCount = $b->currentCalls->count();
+      return $aCount - $bCount;
+    })->flatten();
+
     $call = new TenantCall();
     $call->receiver_id = Auth::guard('tenant_api')->user()->id;
-    $call->current_analyst_id = 0;
+    $call->current_analyst_id = $users[0]->id;
     $call->client_id = $request->get('client_id');
     $call->caller_name = $request->get('caller_name');
     $call->name = $request->get('name');
     $call->details = $request->get('details');
-    $trimmedTags = array_map(function($item) {
+    $trimmedTags = array_map(function ($item) {
       $item = trim($item);
       $item = strtolower($item);
       return $item;
@@ -87,7 +105,7 @@ class TenantCallController extends Controller
       'call_id' => 'required|integer',
       'details' => 'required|string',
       'tags' => 'required|array',
-      'resolved' => 'string',
+      'resolved' => 'bool',
       'current_analyst_id' => 'required|integer'
     ]);
 
@@ -117,25 +135,27 @@ class TenantCallController extends Controller
         }
 
         if (!empty($request->get('tags'))) {
-          $trimmedTags = array_map(function($item) {
+          $trimmedTags = array_map(function ($item) {
             $item = trim($item);
             $item = strtolower($item);
             return $item;
           }, $request->get("tags"));
           $trimmedTags = array_unique($trimmedTags);
-          if($call->tags !== $trimmedTags) {
+          if ($call->tags !== $trimmedTags) {
             $call->tags = implode(" | ", $trimmedTags);
             $userActionLog->details .= " tags,";
           }
         }
 
-        if($request->get("current_analyst_id") !== $call->current_analyst_id && Auth::guard('tenant_api')->user()->isAllowedTo("change-analyst-for-call")) {
+        if ($request->get("current_analyst_id") !== $call->current_analyst_id && Auth::guard('tenant_api')->user()->isAllowedTo("change-analyst-for-call")) {
           $newAnalyst = TenantUser::find($request->get("current_analyst_id"));
-          if(!$newAnalyst) {
+          if (!$newAnalyst) {
             $userActionLog->details .= " new analyst not updated (not found).";
             array_push($issues, "Analyst not updated. New analyst not found.");
+          } else if (!$newAnalyst->isAllowedTo('update-call')) {
+            return response()->json(['message' => 'Cannot update analyst to this user as they lack the perm update-call.'], 403);
           } else {
-            $userActionLog->details .= " analyst updated to ".$newAnalyst->first_name." ".$newAnalyst->second_name.".";
+            $userActionLog->details .= " analyst updated to " . $newAnalyst->first_name . " " . $newAnalyst->second_name . ".";
             $call->current_analyst_id = $newAnalyst->id;
           }
         } else {
@@ -156,7 +176,7 @@ class TenantCallController extends Controller
         if ($call->save()) {
           $message = "Call updated.";
           if ($callUpdate->save()) {
-            $message .= " ".implode(" ", $issues);
+            $message .= " " . implode(" ", $issues);
             $message .= " Created new call update record.";
           } else {
             $message .= " Unable to create the call update record (details not saved).";
@@ -196,7 +216,7 @@ class TenantCallController extends Controller
     } else {
       if ($call->updates->isEmpty()) {
         if ($call->delete()) {
-          if($userActionLog->log_action_id) $userActionLog->save();
+          if ($userActionLog->log_action_id) $userActionLog->save();
           $response = response()->json(['message' => 'Call deleted.'], 200);
         } else {
           $response = response()->json(['message' => 'Delete didn\'t work'], 500);
@@ -214,14 +234,59 @@ class TenantCallController extends Controller
    *
    * @return mixed
    */
-  public function getAll()
+  public function getAll(Request $request)
   {
+    $this->validate($request, [
+      'resolved' => 'string',
+      'created_at' => 'string',
+      'handled_by' => 'string',
+      'form' => 'string'
+    ]);
     $userActionLog = new TenantUserActionLog();
     $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-calls');
     $userActionLog->details = "Accessed all calls via /get/all.";
-    if($userActionLog->log_action_id) $userActionLog->save();
-    return TenantCall::with('client')->simplePaginate();
+
+    $tenantCallQuery = TenantCall::with(['client' => function ($query) {
+      $query->select(['id', 'name']);
+    }]);
+
+    $resolvedFilter = strtolower($request->get('resolved'));
+    if ($resolvedFilter) {
+      if ($resolvedFilter == "yes") {
+        $tenantCallQuery = $tenantCallQuery->where('resolved', '=', 1);
+      } else if ($resolvedFilter == "no") {
+        $tenantCallQuery = $tenantCallQuery->where('resolved', '=', 0);
+      }
+    }
+
+    $handledByFilter = strtolower($request->get('handled_by'));
+    if ($handledByFilter) {
+      if ($handledByFilter == "self") {
+        $tenantCallQuery = $tenantCallQuery->where('current_analyst_id', '=', Auth::guard('tenant_api')->user()->id);
+      }
+    }
+
+    $createdAtFilter = $request->get('created_at');
+    if ($createdAtFilter) {
+      if ($createdAtFilter == 'asc') {
+        $tenantCallQuery = $tenantCallQuery->orderBy('created_at', 'asc');
+      } else if ($createdAtFilter == 'desc') {
+        $tenantCallQuery = $tenantCallQuery->orderBy('created_at', 'desc');
+      }
+    }
+
+    $forForm = $request->get('forForm');
+    if ($forForm) {
+      if ($forForm == 'true') {
+        $tenantCallQuery = $tenantCallQuery->get();
+      }
+    } else {
+      $tenantCallQuery = $tenantCallQuery->simplePaginate(5);
+    }
+
+    if ($userActionLog->log_action_id) $userActionLog->save();
+    return $tenantCallQuery;
   }
 
   /**
