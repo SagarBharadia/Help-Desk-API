@@ -28,8 +28,8 @@ class TenantUserTest extends TestCase
     $this->token = $data->token;
 
     if (!static::$alreadySetup) {
-      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DropTablesForTest']);
-      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantUserSeeder']);
+      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DropTablesForSeeding']);
+      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantDatabaseSeeder']);
       static::$alreadySetup = true;
     }
   }
@@ -72,7 +72,7 @@ class TenantUserTest extends TestCase
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url . 'api/users/update', $parameters, $headers);
-    $this->assertEquals(204, $response->status());
+    $this->assertEquals(200, $response->status());
   }
 
   public function testShouldToggleActiveStateOfUser()
@@ -84,7 +84,7 @@ class TenantUserTest extends TestCase
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url . 'api/users/toggleActive', $parameters, $headers);
-    $this->assertEquals(204, $response->status());
+    $this->assertEquals(200, $response->status());
   }
 
   public function testShouldGetAllUsers()

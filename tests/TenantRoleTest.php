@@ -33,8 +33,8 @@ class TenantRoleTest extends TestCase
     $this->token = $data->token;
 
     if (!static::$alreadySetup) {
-      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DropTablesForTest']);
-      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantRolesSeeder']);
+      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DropTablesForSeeding']);
+      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantDatabaseSeeder']);
       static::$alreadySetup = true;
     }
   }
@@ -54,7 +54,7 @@ class TenantRoleTest extends TestCase
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url . 'api/roles/create', $parameters, $headers);
-    $this->assertEquals(204, $response->status());
+    $this->assertEquals(200, $response->status());
   }
 
   public function testShouldUpdateRole()
@@ -65,10 +65,11 @@ class TenantRoleTest extends TestCase
       'role_id' => $role->id,
       'name' => 'first-updated-role',
       'display_name' => 'First Updated Role',
+      'appliedPermissions' => []
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url . 'api/roles/update', $parameters, $headers);
-    $this->assertEquals(204, $response->status());
+    $this->assertEquals(200, $response->status());
   }
 
   public function testShouldDeleteRole()
@@ -80,7 +81,7 @@ class TenantRoleTest extends TestCase
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url . 'api/roles/delete', $parameters, $headers);
-    $this->assertEquals(204, $response->status());
+    $this->assertEquals(200, $response->status());
   }
 
   public function testShouldGetAllRoles()

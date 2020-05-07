@@ -28,8 +28,8 @@ class TenantClientTest extends TestCase
     $this->token = $data->token;
 
     if(!static::$alreadySetup) {
-      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DropTablesForTest']);
-      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantClientSeeder']);
+      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DropTablesForSeeding']);
+      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantDatabaseSeeder']);
       static::$alreadySetup = true;
     }
   }
@@ -55,7 +55,7 @@ class TenantClientTest extends TestCase
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url . 'api/clients/create', $parameters, $headers);
-    $this->assertEquals(204, $response->status());
+    $this->assertEquals(201, $response->status());
   }
 
   public function testShouldUpdateClient()
@@ -70,7 +70,7 @@ class TenantClientTest extends TestCase
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url . 'api/clients/update', $parameters, $headers);
-    $this->assertEquals(204, $response->status());
+    $this->assertEquals(200, $response->status());
   }
 
   public function testShouldGetAllClients()
@@ -98,6 +98,6 @@ class TenantClientTest extends TestCase
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url . 'api/clients/delete', $parameters, $headers);
-    $this->assertEquals(204, $response->status());
+    $this->assertEquals(200, $response->status());
   }
 }
