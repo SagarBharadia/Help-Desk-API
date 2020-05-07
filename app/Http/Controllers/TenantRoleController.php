@@ -68,16 +68,18 @@ class TenantRoleController extends Controller
 
       if ($role->save()) {
 
-        foreach ($appliedPermissions as $applPerm) {
-          $permAction = TenantPermissionAction::where('action', '=', $applPerm)->first();
-          $perm = new TenantPermission();
-          $perm->permission_action_id = $permAction->id;
-          $perm->role_id = $role->id;
-          $perm->save();
+        if ($appliedPermissions) {
+          foreach ($appliedPermissions as $applPerm) {
+            $permAction = TenantPermissionAction::where('action', '=', $applPerm)->first();
+            $perm = new TenantPermission();
+            $perm->permission_action_id = $permAction->id;
+            $perm->role_id = $role->id;
+            $perm->save();
+          }
         }
 
         if ($userActionLog->log_action_id) $userActionLog->save();
-        $response = response()->json(['message' => 'Created role.'], 201);
+        $response = response()->json(['message' => 'Created role.'], 200);
       } else {
         $response = response()->json(['message' => 'Couldn\'t create role.'], 500);
       }
@@ -138,7 +140,7 @@ class TenantRoleController extends Controller
         // Adding permissions
         foreach ($appliedPermissions as $applPerm) {
           // Filter instead of a in_array to see if $applPerm is in $role->permissions
-          $ifItExistsAlready = array_filter($rolePermissionsAsArray, function($permToCheck) use ($applPerm) {
+          $ifItExistsAlready = array_filter($rolePermissionsAsArray, function ($permToCheck) use ($applPerm) {
             return $permToCheck['permission_action']['action'] == $applPerm;
           });
           if (!$ifItExistsAlready) {
