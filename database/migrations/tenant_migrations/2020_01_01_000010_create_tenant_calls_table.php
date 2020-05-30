@@ -23,6 +23,7 @@ class CreateTenantCallsTable extends Migration
             $table->text('details');
             $table->text('tags');
             $table->boolean('resolved');
+            $table->dateTime('resolved_at')->nullable();
             $table->timestamps();
 
 

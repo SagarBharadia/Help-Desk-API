@@ -11,6 +11,7 @@ use App\TenantPermissionAction;
 use App\TenantRole;
 use App\TenantUserActionLog;
 use App\TenantUser;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -168,9 +169,11 @@ class TenantCallController extends Controller
         if (!empty($request->get('resolved'))) {
           if ($request->get('resolved') == 'true') {
             $call->resolved = 1;
+            $call->resolved_at = Carbon::now();
           }
         } else {
           $call->resolved = 0;
+          $call->resolved_at = null;
         }
 
         if ($call->save()) {
@@ -344,7 +347,7 @@ class TenantCallController extends Controller
       $query->where('name', 'LIKE', $searchQuery)
         ->orWhere('tags', 'LIKE', $searchQuery);
     })->where("resolved", '=', 1)
-      ->orderBy("created_at", "desc")
+      ->orderBy("resolved_at", "desc")
       ->simplePaginate()
       ->toArray();
 
