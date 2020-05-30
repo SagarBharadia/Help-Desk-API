@@ -340,8 +340,7 @@ class TenantCallController extends Controller
 
     $searchQuery = "% " . $request->get('query') . " %";
 
-    $calls = TenantCall::where(function($query) use ($searchQuery)
-    {
+    $calls = TenantCall::where(function ($query) use ($searchQuery) {
       $query->where('name', 'LIKE', $searchQuery)
         ->orWhere('tags', 'LIKE', $searchQuery);
     })->where("resolved", '=', 1)
@@ -349,10 +348,52 @@ class TenantCallController extends Controller
       ->simplePaginate()
       ->toArray();
 
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('searched-previous-solved-logs');
+    $userActionLog->details = "Searched solved calls with query: " . $searchQuery;
+
+    if ($userActionLog->log_action_id) $userActionLog->save();
+
     if (empty($calls['data'])) {
       $response = response()->json(['message' => 'No calls were found matching your criteria.'], 404);
     } else {
       $response = response()->json(['message' => 'Calls found.', 'calls' => $calls], 200);
+    }
+
+    return $response;
+  }
+
+  /**
+   * Function to mark call as unsolved.
+   *
+   * @param TenantCall $call
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function markAsUnsolved(Request $request, TenantCall $call)
+  {
+    $this->validate($request, [
+      'reason' => 'required|text'
+    ]);
+    $userActionLog = new TenantUserActionLog();
+    $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
+    $userActionLog->log_action_id = TenantLogAction::getIdOfAction('updated-call');
+    $userActionLog->details = "Marked call " . $call->name . " (id: " . $call->id . ") as unsolved.";
+
+    $call->resolved = 0;
+
+    $callUpdate = new TenantCallUpdate();
+    $callUpdate->call_id = $call->id;
+    $callUpdate->user_id = Auth::guard('tenant_api')->user()->id;
+    $callUpdate->details = $request->get('reason');
+
+    if ($call->save()) {
+      if ($userActionLog->log_action_id) $userActionLog->save();
+      $message = "Call marked as unsolved.";
+      if (!$callUpdate->save()) $message .= " Reason could not be saved.";
+      $response = response()->json(['message' => $message], 200);
+    } else {
+      $response = response()->json(['message' => 'Call could not be marked as unsolved.'], 500);
     }
 
     return $response;
