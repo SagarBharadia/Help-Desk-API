@@ -73,7 +73,7 @@ class TenantCallController extends Controller
       return $item;
     }, $request->get("tags"));
     $trimmedTags = array_unique($trimmedTags);
-    $call->tags = implode(" | ", $trimmedTags);
+    $call->tags = " " . implode(" | ", $trimmedTags) . " ";
     $call->resolved = 0;
 
     $userActionLog = new TenantUserActionLog();
@@ -142,7 +142,7 @@ class TenantCallController extends Controller
           }, $request->get("tags"));
           $trimmedTags = array_unique($trimmedTags);
           if ($call->tags !== $trimmedTags) {
-            $call->tags = implode(" | ", $trimmedTags);
+            $call->tags = " " . strtolower(implode(" | ", $trimmedTags)) . " ";
             $userActionLog->details .= " tags,";
           }
         }
@@ -319,6 +319,40 @@ class TenantCallController extends Controller
       $userActionLog->details = "Retrieved call " . $call['name'];
       if ($userActionLog->log_action_id) $userActionLog->save();
       $response = response()->json(['message' => 'Call found.', 'call' => $call], 200);
+    }
+
+    return $response;
+  }
+
+  /**
+   * Search through calls using key word filter.
+   *
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   * @throws \Illuminate\Validation\ValidationException
+   */
+  public function search(Request $request)
+  {
+    // Validating request
+    $validator = Validator::make(['query' => $request->query], [
+      'query' => 'required|string'
+    ]);
+
+    $searchQuery = "% " . $request->get('query') . " %";
+
+    $calls = TenantCall::where(function($query) use ($searchQuery)
+    {
+      $query->where('name', 'LIKE', $searchQuery)
+        ->orWhere('tags', 'LIKE', $searchQuery);
+    })->where("resolved", '=', 1)
+      ->orderBy("created_at", "desc")
+      ->simplePaginate()
+      ->toArray();
+
+    if (empty($calls['data'])) {
+      $response = response()->json(['message' => 'No calls were found matching your criteria.'], 404);
+    } else {
+      $response = response()->json(['message' => 'Calls found.', 'calls' => $calls], 200);
     }
 
     return $response;

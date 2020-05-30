@@ -312,7 +312,7 @@ class TenantDatabaseSeeder extends Seeder
         'caller_name' => 'Joseph',
         'name' => 'Adding custom field to invoice not working',
         'details' => 'Unable to add a custom field to the invoice. User was met with error A506.',
-        'tags' => "custom field | invoice | A506"
+        'tags' => "custom field | invoice | a506"
       ],
       [
         'receiver_id' => $receiverUser->id,
@@ -320,7 +320,7 @@ class TenantDatabaseSeeder extends Seeder
         'caller_name' => 'Katie',
         'name' => 'Unable to download pdf of invoice',
         'details' => 'Caller says she is unable to download a invoice she has generated. The error D500 pops up to screen.',
-        'tags' => 'download invoice | D500'
+        'tags' => 'download invoice | d500'
       ],
       [
         'receiver_id' => $receiverUser->id,
@@ -336,7 +336,7 @@ class TenantDatabaseSeeder extends Seeder
         'caller_name' => 'Joe',
         'name' => "Can't use email feature to send invoice to a client",
         'details' => 'User tried to use the email feature to send a email to their client. The email was unable to send and showed the error : Connection refused E201',
-        'tags' => 'email invoice | E201 | connection refused'
+        'tags' => 'email invoice | e201 | connection refused'
       ]
     ];
     $this->createCalls($calls);
