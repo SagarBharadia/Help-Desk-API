@@ -105,6 +105,18 @@ class TenantUser extends Model implements AuthenticatableContract, AuthorizableC
     }
 
     /**
+     * Getting the current active calls for this user.
+     *
+     * @return mixed
+     */
+    public function activeCalls() {
+      $calls = TenantCall::where('current_analyst_id', '=', $this->id)
+        ->where('resolved', '=', 0)
+        ->get();
+      return $calls;
+    }
+
+    /**
      * Getting the call updates this user has performed.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

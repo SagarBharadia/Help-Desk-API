@@ -55,8 +55,8 @@ class TenantCallController extends Controller
     }
     $users = TenantUser::whereIn('role_id', $roleIDs)->get();
     $users = $users->sort(function ($a, $b) {
-      $aCount = $a->currentCalls->count();
-      $bCount = $b->currentCalls->count();
+      $aCount = $a->activeCalls()->count();
+      $bCount = $b->activeCalls()->count();
       return $aCount - $bCount;
     })->flatten();
 
