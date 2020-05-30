@@ -222,4 +222,25 @@ class TenantUserController extends Controller
   {
     return response()->json([], 200);
   }
+
+  /**
+   * Get the user history paginated.
+   *
+   * @param TenantUser $user
+   * @return mixed
+   */
+  public function userLogs($user_id)
+  {
+    $user = TenantUser::find($user_id);
+    if (!$user) {
+      $response = response()->json(['message' => 'User not found.'], 404);
+    } else {
+      $userHistory = TenantUserActionLog::with('logAction')
+        ->where('user_id', '=', $user_id)
+        ->orderBy('created_at', 'desc')
+        ->simplePaginate();
+      $response = response()->json(['message' => 'User history found.', 'userHistory' => $userHistory], 200);
+    }
+    return $response;
+  }
 }

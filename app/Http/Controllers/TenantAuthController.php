@@ -58,9 +58,18 @@ class TenantAuthController extends Controller
       if (!Auth::guard('tenant_api')->user()->active) {
         $response = response()->json(['message' => 'User not active.'], 401);
       } else {
+<<<<<<< Updated upstream
         // TODO: Need to implement also returning the full name of the user to display in appbar
         // Also return the company name so front end will not use the company_subdir anymore
         $response = $this->respondWithToken($token, $request->route('company_subdirectory'));
+=======
+        $tenantRecord = GlobalCompanyDatabase::where("company_url_subdirectory", "=", $request->route('company_subdirectory'))->first();
+        if(!$tenantRecord) {
+          $response = response()->json([], 404);
+        } else {
+          $response = $this->respondWithToken($token, $tenantRecord, Auth::guard('tenant_api')->user());
+        }
+>>>>>>> Stashed changes
       }
     }
 

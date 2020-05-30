@@ -66,9 +66,7 @@ $router->group([
   $router->post('users/toggleActive', ['middleware' => 'perm:toggleActive-for-users', 'uses' => 'TenantUserController@toggleActive']);
   $router->get('users/get/all', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getAll']);
   $router->get('users/get/{user_id}', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@get']);
-
-  // TODO: Need to create routes to load user action logs with appropriate permission to read users
-  // Not to be confused with "self" routes which have not been created yet
+  $router->get('users/get/{user_id}/logs', ['middleware' => 'perm:read-user-logs', 'uses' => 'TenantUserController@userLogs']);
 
   // TODO: Need to create self routes with self permission or middleware to check they are editting themselves
 
