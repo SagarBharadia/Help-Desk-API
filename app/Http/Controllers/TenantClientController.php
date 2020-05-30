@@ -8,7 +8,6 @@ use App\TenantUser;
 use App\TenantUserActionLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class TenantClientController extends Controller
@@ -50,7 +49,7 @@ class TenantClientController extends Controller
 
     if ($client->save()) {
       if ($userActionLog->log_action_id) $userActionLog->save();
-      $response = response()->json([], 204);
+      $response = response()->json(['message' => 'Created client.'], 201);
     } else {
       $response = response()->json(['message' => 'Could not save client.'], 500);
     }
@@ -68,10 +67,10 @@ class TenantClientController extends Controller
   public function update(Request $request)
   {
     $this->validate($request, [
-      'client_id' => 'integer',
+      'client_id' => 'integer|required',
       'name' => 'string',
-      'email_address' => 'string|email|unique:tenant.clients',
-      'phone_number' => 'string|unique:tenant.clients'
+      'email_address' => 'string|email|unique:tenant.clients,email_address,' . $request->get("client_id"),
+      'phone_number' => 'string|unique:tenant.clients,phone_number,' . $request->get("client_id")
     ]);
 
     $client = TenantClient::find($request->get('client_id'));
@@ -98,7 +97,7 @@ class TenantClientController extends Controller
 
       if ($client->save()) {
         if ($userActionLog->log_action_id) $userActionLog->save();
-        $response = response()->json([], 204);
+        $response = response()->json(['message' => 'Updated client.'], 200);
       } else {
         $response = response()->json(['message' => 'Could not update client.'], 500);
       }
@@ -132,7 +131,7 @@ class TenantClientController extends Controller
         $userActionLog->details = "Deleted client " . $client->name . "(" . $client->email_address . ")";
         if ($client->delete()) {
           if ($userActionLog->log_action_id) $userActionLog->save();
-          $response = response()->json([], 204);
+          $response = response()->json(['message' => 'Deleted client.'], 200);
         } else {
           $response = response()->json(['message' => 'Client deletion failed.'], 500);
         }
@@ -149,14 +148,22 @@ class TenantClientController extends Controller
    *
    * @return \Illuminate\Contracts\Pagination\Paginator
    */
-  public function getAll()
+  public function getAll(Request $request)
   {
     $userActionLog = new TenantUserActionLog();
     $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('accessed-client');
     $userActionLog->details = "Retrieved all clients using /clients/get/all";
+
+    if ($request->get("forForm") && $request->get("forForm") === "true") {
+      $data = TenantClient::all();
+      $userActionLog->details .= "?forForm='true'";
+    } else {
+      $data = TenantClient::simplePaginate();
+    }
+
     if ($userActionLog->log_action_id) $userActionLog->save();
-    return DB::connection('tenant')->table('clients')->simplePaginate();
+    return $data;
   }
 
   /**

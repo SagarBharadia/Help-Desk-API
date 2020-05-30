@@ -28,9 +28,8 @@ class TenantCallsTest extends TestCase
     $this->token = $data->token;
 
     if(!static::$alreadySetup) {
-      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DropTablesForTest']);
-      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantClientSeeder']);
-      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantCallsSeeder']);
+      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DropTablesForSeeding']);
+      \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'TenantDatabaseSeeder']);
       static::$alreadySetup = true;
     }
   }
@@ -41,46 +40,48 @@ class TenantCallsTest extends TestCase
     ];
   }
 
-  private function getClientByEmail($email) {
-    return DB::connection('tenant')->table('clients')->where('email_address', '=', $email)->first();
+  private function getClient() {
+    return DB::connection('tenant')->table('clients')->select()->first();
   }
 
-  private function getCallByID(int $id) {
-    return DB::connection('tenant')->table('calls')->where('id', '=', $id)->first();
+  private function getCall() {
+    return DB::connection('tenant')->table('calls')->select()->first();
   }
 
   public function testShouldCreateCall()
   {
-    $client = $this->getClientByEmail("kajal@kajalhair.com");
+    $client = $this->getClient();
     if(!$client) $this->fail('Client seeder did not work.');
     $parameters = [
       'client_id' => $client->id,
       'caller_name' => 'Emma',
       'name' => 'Can\'t login to the online booking system',
       'details' => 'Attempted to login and received error D405',
-      'tags' => 'login, d405'
+      'tags' => ['login', 'd405']
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url.'api/calls/create', $parameters, $headers);
-    $this->assertEquals(204, $response->status());
+    $this->assertEquals(200, $response->status());
   }
 
   public function testShouldUpdateCall()
   {
-    $call = $this->getCallByID(1);
+    $call = $this->getCall();
     if(!$call) $this->fail('Call seeder failed.');
     $parameters = [
       'call_id' => $call->id,
-      'details' => 'Currently looking into the issue. The client has said that the online payment was via stripe.'
+      'details' => 'Currently looking into the issue. The client has said that the online payment was via stripe.',
+      'tags' => explode(" | ",$call->tags),
+      'current_analyst_id' => $call->current_analyst_id
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url.'api/calls/update', $parameters, $headers);
-    $this->assertEquals(204, $response->status());
+    $this->assertEquals(200, $response->status());
   }
 
   public function testShouldDeleteCall()
   {
-    $call = $this->getCallByID(1);
+    $call = $this->getCall();
     if(!$call) $this->fail('Call seeder failed.');
     DB::connection('tenant')->table('call_updates')->where('call_id', '=', $call->id)->delete();
     $parameters = [
@@ -88,7 +89,7 @@ class TenantCallsTest extends TestCase
     ];
     $headers = $this->getHeaders();
     $response = $this->call('POST', $this->api_url.'api/calls/delete', $parameters, $headers);
-    $this->assertEquals(204, $response->status());
+    $this->assertEquals(200, $response->status());
   }
 
   public function testShouldGetAllCalls()
@@ -100,7 +101,8 @@ class TenantCallsTest extends TestCase
 
   public function testShouldGetCall() {
     $headers = $this->getHeaders();
-    $response = $this->call('GET', $this->api_url.'api/calls/get/2', [], $headers);
+    $call = $this->getCall();
+    $response = $this->call('GET', $this->api_url.'api/calls/get/'.$call->id, [], $headers);
     $this->assertEquals(200, $response->status());
   }
 

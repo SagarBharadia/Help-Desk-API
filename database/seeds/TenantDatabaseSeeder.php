@@ -16,7 +16,7 @@ class TenantDatabaseSeeder extends Seeder
    * The name of the database connection to add.
    * @var string
    */
-  private $databaseName = "mycompany";
+  private $databaseName = "test";
 
   /**
    * Seed the roles.
@@ -25,7 +25,6 @@ class TenantDatabaseSeeder extends Seeder
    */
   private function createRoles(array $roles)
   {
-    echo "\e[1;36mSTARTING: Creating Roles.\e[0m\n";
     foreach ($roles as $role) {
       $roleModel = new \App\TenantRole();
       $roleModel->name = $role['name'];
@@ -33,13 +32,8 @@ class TenantDatabaseSeeder extends Seeder
       $roleModel->protected_role = 0;
       $roleModel->created_at = $roleModel->freshTimestampString();
       $roleModel->updated_at = $roleModel->freshTimestampString();
-      if ($roleModel->save()) {
-        echo "\e[1;32m" . $roleModel->display_name . " role seeded.\e[0m\n";
-      } else {
-        echo "\e[1;31mSeeding role " . $roleModel->display_name . " failed.\e[0m\n";
-      }
+      $roleModel->save();
     }
-    echo "\e[0;36mFINISHED: Creating Roles.\e[0m\n";
   }
 
   /**
@@ -50,20 +44,14 @@ class TenantDatabaseSeeder extends Seeder
    */
   private function createPermissions(\App\TenantRole $role, array $permissionActions)
   {
-    echo "\e[1;36mSTARTING: Creating permissions for '" . $role->display_name . "' role.\e[0m\n";
     foreach ($permissionActions as $permissionAction) {
       $permissionModel = new \App\TenantPermission();
       $permissionModel->role_id = $role->id;
       $permissionModel->permission_action_id = $permissionAction->id;
       $permissionModel->created_at = $permissionModel->freshTimestampString();
       $permissionModel->updated_at = $permissionModel->freshTimestampString();
-      if ($permissionModel->save()) {
-        echo "\e[1;32m" . $permissionAction->name . " permission for role " . $role->display_name . " seeded.\e[0m\n";
-      } else {
-        echo "\e[1;31mSeeding " . $permissionAction->name . " permission for role " . $role->display_name . " failed.\e[0m\n";
-      }
+      $permissionModel->save();
     }
-    echo "\e[0;36mFINISHED: Creating permissions for '" . $role->display_name . "' role.\e[0m\n";
   }
 
   /**
@@ -73,7 +61,6 @@ class TenantDatabaseSeeder extends Seeder
    */
   private function createUsers(array $users)
   {
-    echo "\e[1;36mSTARTING: Creating users.\e[0m\n";
     foreach ($users as $user) {
       $userModel = new \App\TenantUser();
       $userModel->role_id = $user['role_id'];
@@ -83,13 +70,8 @@ class TenantDatabaseSeeder extends Seeder
       $userModel->password = $user['password'];
       $userModel->created_at = $userModel->freshTimestampString();
       $userModel->updated_at = $userModel->freshTimestampString();
-      if ($userModel->save()) {
-        echo "\e[1;32m" . $userModel->first_name . " [" . $userModel->email_address . "] user seeded.\e[0m\n";
-      } else {
-        echo "\e[1;31mSeeding " . $userModel->first_name . " user failed.\e[0m\n";
-      }
+      $userModel->save();
     }
-    echo "\e[0;36mFINISHED: Creating users.\e[0m\n";
   }
 
   /**
@@ -99,8 +81,7 @@ class TenantDatabaseSeeder extends Seeder
    */
   private function createCalls(array $calls)
   {
-    echo "\e[1;36mSTARTING: Creating calls.\e[0m\n";
-    foreach($calls as $call) {
+    foreach ($calls as $call) {
       $callModel = new \App\TenantCall();
       $callModel->receiver_id = $call['receiver_id'];
       $callModel->current_analyst_id = 0;
@@ -110,13 +91,8 @@ class TenantDatabaseSeeder extends Seeder
       $callModel->details = $call['details'];
       $callModel->tags = $call['tags'];
       $callModel->resolved = 0;
-      if ($callModel->save()) {
-        echo "\e[1;32m" . $callModel->name . " call seeded.\e[0m\n";
-      } else {
-        echo "\e[1;31mSeeding " . $callModel->name . " call failed.\e[0m\n";
-      }
+      $callModel->save();
     }
-    echo "\e[0;36mFINISHED: Creating calls.\e[0m\n";
   }
 
   /**
@@ -126,7 +102,6 @@ class TenantDatabaseSeeder extends Seeder
    */
   private function createClients(array $clients)
   {
-    echo "\e[1;36mSTARTING: Creating clients.\e[0m\n";
     foreach ($clients as $client) {
       $clientModel = new \App\TenantClient();
       $clientModel->created_by = $client['created_by'];
@@ -135,13 +110,8 @@ class TenantDatabaseSeeder extends Seeder
       $clientModel->phone_number = $client['phone_number'];
       $clientModel->created_at = $clientModel->freshTimestampString();
       $clientModel->updated_at = $clientModel->freshTimestampString();
-      if ($clientModel->save()) {
-        echo "\e[1;32m" . $clientModel->name . " client seeded.\e[0m\n";
-      } else {
-        echo "\e[1;31mSeeding " . $clientModel->name . " client failed.\e[0m\n";
-      }
+      $clientModel->save();
     }
-    echo "\e[0;36mFINISHED: Creating clients.\e[0m\n";
   }
 
   /**
@@ -163,18 +133,19 @@ class TenantDatabaseSeeder extends Seeder
 
     // Adding Tenant Connection
     addConnectionByName($databaseRecord->company_database_name);
-    echo "\e[1;34mSUCCESS: Added tenant connection to environment.\e[0m\n";
 
     // Dropping the tables and only leaving the data that was inserted by creating the company instance.
     \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DropTablesForSeeding']);
-    echo "\e[1;34mSUCCESS: Executed 'DropTablesForSeeding'.\e[0m\n";
 
     // Create Roles
     $roles = [
       ['name' => "admin", 'display_name' => 'Admin'],
       ['name' => "receiver", 'display_name' => "Receiver"],
       ['name' => "support-analyst", 'display_name' => "Analyst"],
-      ['name' => 'analytics', 'display_name' => 'Analytics']
+      ['name' => 'analytics', 'display_name' => 'Analytics'],
+      ['name' => 'first-seeded-role', 'display_name' => 'First Role'],
+      ['name' => 'second-seeded-role', 'display_name' => 'Second Role'],
+      ['name' => 'third-seeded-role', 'display_name' => 'Third Role']
     ];
     $this->createRoles($roles);
 
@@ -263,6 +234,20 @@ class TenantDatabaseSeeder extends Seeder
         'second_name' => "Role",
         'email_address' => 'analytics@mycompany.com',
         'password' => Hash::make('1234567890')
+      ],
+      [
+        'first_name' => 'First Name Seeded 1',
+        'second_name' => 'Second Name Seeded 1',
+        'email_address' => 'firstuserseeded@gmail.com',
+        'password' => Hash::make('1234567890'),
+        'role_id' => $analyticsRole->id
+      ],
+      [
+        'first_name' => 'First Name Seeded 2',
+        'second_name' => 'Second Name Seeded 2',
+        'email_address' => 'seconduserseeded@gmail.com',
+        'password' => Hash::make('1234567890'),
+        'role_id' => $analyticsRole->id
       ]
     ];
     $this->createUsers($usersToSeed);
@@ -297,6 +282,24 @@ class TenantDatabaseSeeder extends Seeder
         'name' => "Raj's Graphics",
         'email_address' => "raj@rajsgraphics.com",
         'phone_number' => '04567821234'
+      ],
+      [
+        'created_by' => $adminUser->id,
+        'name' => 'Kajal\'s hair salon',
+        'email_address' => 'kajal@kajalhair.com',
+        'phone_number' => '07345475677'
+      ],
+      [
+        'created_by' => $adminUser->id,
+        'name' => 'Emma\'s hair salon',
+        'email_address' => 'emma@emmasalon.com',
+        'phone_number' => '01235479867'
+      ],
+      [
+        'created_by' => $adminUser->id,
+        'name' => 'Stacey\'s hair salon',
+        'email_address' => 'stacey@staceyssalon.com',
+        'phone_number' => '07345479867'
       ]
     ];
     $this->createClients($clients);
@@ -309,7 +312,7 @@ class TenantDatabaseSeeder extends Seeder
         'caller_name' => 'Joseph',
         'name' => 'Adding custom field to invoice not working',
         'details' => 'Unable to add a custom field to the invoice. User was met with error A506.',
-        'tags' => "custom field, invoice, A506"
+        'tags' => "custom field | invoice | a506"
       ],
       [
         'receiver_id' => $receiverUser->id,
@@ -317,7 +320,7 @@ class TenantDatabaseSeeder extends Seeder
         'caller_name' => 'Katie',
         'name' => 'Unable to download pdf of invoice',
         'details' => 'Caller says she is unable to download a invoice she has generated. The error D500 pops up to screen.',
-        'tags' => 'download invoice, D500'
+        'tags' => 'download invoice | d500'
       ],
       [
         'receiver_id' => $receiverUser->id,
@@ -325,7 +328,7 @@ class TenantDatabaseSeeder extends Seeder
         'caller_name' => 'Ellie',
         'name' => 'Unable to save invoice draft',
         'details' => 'Caller has created a draft for a invoice, but is unable to save the draft for her supervisor to check it off',
-        'tags' => 'unable to save draft invoice, draft invoice'
+        'tags' => 'unable to save draft invoice | draft invoice'
       ],
       [
         'receiver_id' => $receiverUser->id,
@@ -333,7 +336,7 @@ class TenantDatabaseSeeder extends Seeder
         'caller_name' => 'Joe',
         'name' => "Can't use email feature to send invoice to a client",
         'details' => 'User tried to use the email feature to send a email to their client. The email was unable to send and showed the error : Connection refused E201',
-        'tags' => 'email invoice, E201, connection refused'
+        'tags' => 'email invoice | e201 | connection refused'
       ]
     ];
     $this->createCalls($calls);
