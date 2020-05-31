@@ -36,7 +36,6 @@ class TenantUserController extends Controller
    */
   public function create(Request $request)
   {
-    // TODO: Do not allow users to be created with the Master role.
     // validate the request
     $this->validate($request, [
       'role_id' => 'required|integer',
@@ -45,6 +44,11 @@ class TenantUserController extends Controller
       'email_address' => 'required|email|unique:tenant.users',
       'password' => ['string', 'required', 'confirmed', new StrongPassword]
     ]);
+
+    $masterRole = TenantRole::getByName('master');
+    if ($request->get('role_id') == $masterRole->id) {
+      return response()->json(['role_id' => 'Cannot assign master role.'], 422);
+    }
 
     $user = new TenantUser();
     $user->role_id = $request->get('role_id');
@@ -77,7 +81,6 @@ class TenantUserController extends Controller
    */
   public function update(Request $request)
   {
-    // TODO: Do not allow users to be updated with the Master role.
     // Validate the request
     $this->validate($request, [
       'user_id' => 'required|integer',
@@ -87,6 +90,11 @@ class TenantUserController extends Controller
       'email_address' => 'email|exists:tenant.users',
       'password' => ['string', 'confirmed', new StrongPassword]
     ]);
+
+    $masterRole = TenantRole::getByName('master');
+    if ($request->get('role_id') == $masterRole->id) {
+      return response()->json(['role_id' => 'Cannot assign master role.'], 422);
+    }
 
     $user = TenantUser::find($request->get('user_id'));
 
@@ -140,13 +148,13 @@ class TenantUserController extends Controller
    */
   public function toggleActive(Request $request)
   {
-    // TODO: Do not allow users to be deactivated with the Master role.
     // Validate the request
     $this->validate($request, [
       'user_id' => 'required|integer'
     ]);
 
     $user = TenantUser::find($request->get('user_id'));
+
     $userActionLog = new TenantUserActionLog();
     $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('toggledActive-for-user');
@@ -154,6 +162,11 @@ class TenantUserController extends Controller
     if (empty($user)) {
       $response = response()->json(['message' => 'User not found.'], 404);
     } else {
+
+      if($user->role->isRole('master')) {
+        return response()->json(['message' => 'Cannot deactivate account with master role.'], 422);
+      }
+
       $user->active = !$user->active;
 
       if ($user->save()) {
@@ -205,7 +218,7 @@ class TenantUserController extends Controller
     }
 
     if ($forForm) {
-      $response = $query->get();
+      $response = $query->where("active", "=", "1")->get();
     } else {
       $response = $query->simplePaginate();
     }
