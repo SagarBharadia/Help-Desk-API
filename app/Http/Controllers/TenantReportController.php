@@ -190,7 +190,6 @@ class TenantReportController extends Controller
         }
       }
 
-
       $pdf = PDF::loadView('report', compact('reportStatistics'));
       $pdfContent = $pdf->output();
       $helpDeskName = app('config')->get('database.connections.tenant.database');
@@ -211,6 +210,25 @@ class TenantReportController extends Controller
       $response = response()->json($errors, 422);
     }
 
+    return $response;
+  }
+
+  public function download($report_id)
+  {
+    $tenantReport = TenantReport::find($report_id);
+    if ($tenantReport) {
+      $helpDeskName = app('config')->get('database.connections.tenant.database');
+      $pathToFile = storage_path("app/" . $helpDeskName . "/reports/" . $tenantReport->filename);
+
+      if (is_file($pathToFile)) {
+        $response = file_get_contents($pathToFile);
+      } else {
+        $tenantReport->delete();
+        $response = response()->json(["message" => "File was not found. Deleting report record."], 404);
+      }
+    } else {
+      $response = response()->json(["message" => "Report not found."], 404);
+    }
     return $response;
   }
 }

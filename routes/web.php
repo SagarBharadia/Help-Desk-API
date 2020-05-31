@@ -99,4 +99,5 @@ $router->group([
   // Tenant Level Report Routes
   $router->get('reports/get/all', ['middleware' => 'perm:read-report', 'uses' => 'TenantReportController@getAll']);
   $router->post('reports/create', ['middleware' => 'perm:create-report', 'uses' => 'TenantReportController@create']);
+  $router->get('reports/download/{report_id}', ['middleware' => 'perm:read-report', 'uses' => 'TenantReportController@download']);
 });
