@@ -273,7 +273,7 @@ class TenantUserController extends Controller
         ->where('user_id', '=', $user_id)
         ->orderBy('created_at', 'desc')
         ->simplePaginate();
-      $response = response()->json(['message' => 'User history found.', 'userHistory' => $userHistory], 200);
+      $response = $userHistory;
     }
     return $response;
   }

@@ -66,9 +66,7 @@ $router->group([
   $router->post('users/toggleActive', ['middleware' => 'perm:toggleActive-for-users', 'uses' => 'TenantUserController@toggleActive']);
   $router->get('users/get/all', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@getAll']);
   $router->get('users/get/{user_id}', ['middleware' => 'perm:read-users', 'uses' => 'TenantUserController@get']);
-  $router->get('users/get/{user_id}/logs', ['middleware' => 'perm:read-user-logs', 'uses' => 'TenantUserController@userLogs']);
-
-  // TODO: Need to create self routes with self permission or middleware to check they are editting themselves
+  $router->get('users/{user_id}/logs', ['middleware' => 'perm:read-user-logs', 'uses' => 'TenantUserController@userLogs']);
 
   // Tenant Level Role Routes
   $router->post('roles/create', ['middleware' => 'perm:create-roles', 'uses' => 'TenantRoleController@create']);
