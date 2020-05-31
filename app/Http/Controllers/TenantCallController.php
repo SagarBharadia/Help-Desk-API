@@ -8,12 +8,10 @@ use App\TenantCallUpdate;
 use App\TenantLogAction;
 use App\TenantPermission;
 use App\TenantPermissionAction;
-use App\TenantRole;
 use App\TenantUserActionLog;
 use App\TenantUser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -285,7 +283,7 @@ class TenantCallController extends Controller
         $tenantCallQuery = $tenantCallQuery->get();
       }
     } else {
-      $tenantCallQuery = $tenantCallQuery->simplePaginate(5);
+      $tenantCallQuery = $tenantCallQuery->simplePaginate();
     }
 
     if ($userActionLog->log_action_id) $userActionLog->save();

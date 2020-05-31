@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\TenantLogAction;
-use App\TenantPermissionAction;
 use App\TenantReport;
 use App\TenantRole;
 use App\TenantUser;
-use App\TenantUserActionLog;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
@@ -17,7 +14,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use PDF;
-use stdClass;
 
 class TenantReportController extends Controller
 {
@@ -45,7 +41,7 @@ class TenantReportController extends Controller
    */
   public function getAll()
   {
-    $reports = TenantReport::with('createdBy')->orderBy('created_at', 'desc')->simplePaginate(25);
+    $reports = TenantReport::with('createdBy')->orderBy('created_at', 'desc')->simplePaginate();
 
     return $reports;
   }
