@@ -52,7 +52,7 @@ class TenantCallController extends Controller
     foreach ($permissions as $perm) {
       array_push($roleIDs, $perm->role->id);
     }
-    $users = TenantUser::whereIn('role_id', $roleIDs)->get();
+    $users = TenantUser::whereIn('role_id', $roleIDs)->where("active", "=", 1)->get();
     $users = $users->sort(function ($a, $b) {
       $aCount = $a->activeCalls()->count();
       $bCount = $b->activeCalls()->count();
