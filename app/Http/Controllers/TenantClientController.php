@@ -137,7 +137,7 @@ class TenantClientController extends Controller
           $response = response()->json(['message' => 'Client deletion failed.'], 500);
         }
       } else {
-        $response = response()->json(['message' => 'Unable to delete client as they have dependencies.'], 500);
+        $response = response()->json(['message' => 'Unable to delete client as they have calls.'], 500);
       }
     }
 
