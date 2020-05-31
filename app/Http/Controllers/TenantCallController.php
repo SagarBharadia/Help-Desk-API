@@ -146,19 +146,21 @@ class TenantCallController extends Controller
           }
         }
 
-        if ($request->get("current_analyst_id") !== $call->current_analyst_id && Auth::guard('tenant_api')->user()->isAllowedTo("change-analyst-for-call")) {
-          $newAnalyst = TenantUser::find($request->get("current_analyst_id"));
-          if (!$newAnalyst) {
-            $userActionLog->details .= " new analyst not updated (not found).";
-            array_push($issues, "Analyst not updated. New analyst not found.");
-          } else if (!$newAnalyst->isAllowedTo('update-call')) {
-            return response()->json(['message' => 'Cannot update analyst to this user as they lack the perm update-call.'], 403);
+        if ($request->get("current_analyst_id") !== $call->current_analyst_id) {
+          if (!Auth::guard('tenant_api')->user()->isAllowedTo("change-analyst-for-call")) {
+            array_push($issues, "Not permitted to update analysts. Skipped.");
           } else {
-            $userActionLog->details .= " analyst updated to " . $newAnalyst->first_name . " " . $newAnalyst->second_name . ".";
-            $call->current_analyst_id = $newAnalyst->id;
+            $newAnalyst = TenantUser::find($request->get("current_analyst_id"));
+            if (!$newAnalyst) {
+              $userActionLog->details .= " new analyst not updated (not found).";
+              array_push($issues, "Analyst not updated. New analyst not found.");
+            } else if (!$newAnalyst->isAllowedTo('update-call')) {
+              return response()->json(['message' => 'Cannot update analyst to this user as they lack the perm update-call.'], 403);
+            } else {
+              $userActionLog->details .= " analyst updated to " . $newAnalyst->first_name . " " . $newAnalyst->second_name . ".";
+              $call->current_analyst_id = $newAnalyst->id;
+            }
           }
-        } else {
-          array_push($issues, "Not permitted to update analysts. Skipped.");
         }
 
         // If the resolved is present then that means the checkbox is checked and it is resolved.
@@ -371,30 +373,36 @@ class TenantCallController extends Controller
    * @param TenantCall $call
    * @return \Illuminate\Http\JsonResponse
    */
-  public function markAsUnsolved(Request $request, TenantCall $call)
+  public function markAsUnsolved(Request $request, $call_id)
   {
     $this->validate($request, [
-      'reason' => 'required|text'
+      'reason' => 'required|string'
     ]);
+
+    $call = TenantCall::find($call_id);
     $userActionLog = new TenantUserActionLog();
     $userActionLog->user_id = Auth::guard('tenant_api')->user()->id;
     $userActionLog->log_action_id = TenantLogAction::getIdOfAction('updated-call');
     $userActionLog->details = "Marked call " . $call->name . " (id: " . $call->id . ") as unsolved.";
 
-    $call->resolved = 0;
-
-    $callUpdate = new TenantCallUpdate();
-    $callUpdate->call_id = $call->id;
-    $callUpdate->user_id = Auth::guard('tenant_api')->user()->id;
-    $callUpdate->details = $request->get('reason');
-
-    if ($call->save()) {
-      if ($userActionLog->log_action_id) $userActionLog->save();
-      $message = "Call marked as unsolved.";
-      if (!$callUpdate->save()) $message .= " Reason could not be saved.";
-      $response = response()->json(['message' => $message], 200);
+    if (!$call) {
+      $response = response()->json(['message' => "Call not found."], 404);
     } else {
-      $response = response()->json(['message' => 'Call could not be marked as unsolved.'], 500);
+      $call->resolved = 0;
+
+      $callUpdate = new TenantCallUpdate();
+      $callUpdate->call_id = $call->id;
+      $callUpdate->user_id = Auth::guard('tenant_api')->user()->id;
+      $callUpdate->details = $request->get('reason');
+
+      if ($call->save()) {
+        if ($userActionLog->log_action_id) $userActionLog->save();
+        $message = "Call marked as unsolved.";
+        if (!$callUpdate->save()) $message .= " Reason could not be saved.";
+        $response = response()->json(['message' => $message], 200);
+      } else {
+        $response = response()->json(['message' => 'Call could not be marked as unsolved.'], 500);
+      }
     }
 
     return $response;
