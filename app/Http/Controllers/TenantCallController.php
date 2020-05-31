@@ -343,7 +343,7 @@ class TenantCallController extends Controller
 
     $searchQuery = "% " . $request->get('query') . " %";
 
-    $calls = TenantCall::where(function ($query) use ($searchQuery) {
+    $calls = TenantCall::with("client")->where(function ($query) use ($searchQuery) {
       $query->where('name', 'LIKE', $searchQuery)
         ->orWhere('tags', 'LIKE', $searchQuery);
     })->where("resolved", '=', 1)
@@ -361,7 +361,7 @@ class TenantCallController extends Controller
     if (empty($calls['data'])) {
       $response = response()->json(['message' => 'No calls were found matching your criteria.'], 404);
     } else {
-      $response = response()->json(['message' => 'Calls found.', 'calls' => $calls], 200);
+      $response = $calls;
     }
 
     return $response;
