@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\TenantCall;
 use App\TenantClient;
 use App\TenantLogAction;
 use App\TenantUser;
@@ -193,6 +194,27 @@ class TenantClientController extends Controller
       $userActionLog->details = "Retrieved client " . $client->name;
       if ($userActionLog->log_action_id) $userActionLog->save();
       $response = response()->json(['message' => 'Client found.', 'client' => $client], 200);
+    }
+
+    return $response;
+  }
+
+  public function getCalls($client_id)
+  {
+    // Validating request
+    $validator = Validator::make(['client_id' => $client_id], [
+      'client_id' => 'required|integer'
+    ]);
+
+    if ($validator->fails()) return $validator->errors();
+
+    $client = TenantClient::find($client_id);
+
+    if (!$client) {
+      $response = response()->json(['message' => 'Client not found.'] . 404);
+    } else {
+      $calls = TenantCall::where('client_id', '=', $client_id)->orderBy("created_at", "DESC")->simplePaginate();
+      $response = $calls;
     }
 
     return $response;

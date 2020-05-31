@@ -84,6 +84,7 @@ $router->group([
   $router->post('clients/delete', ['middleware' => 'perm:delete-client', 'uses' => 'TenantClientController@delete']);
   $router->get('clients/get/all', ['middleware' => 'perm:read-client', 'uses' => 'TenantClientController@getAll']);
   $router->get('clients/get/{client_id}', ['middleware' => 'perm:read-client', 'uses' => 'TenantClientController@get']);
+  $router->get('clients/get/{client_id}/calls', ['middleware' => 'perm:read-client', 'uses' => 'TenantClientController@getCalls']);
 
   // Tenant Level Call Routes
   $router->post('calls/create', ['middleware' => 'perm:create-call', 'uses' => 'TenantCallController@create']);
