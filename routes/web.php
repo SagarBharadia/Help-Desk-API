@@ -96,6 +96,7 @@ $router->group([
   $router->get('calls/search', ['middleware' => 'perm:search-previous-solved-logs', 'uses' => 'TenantCallController@search']);
   $router->post('calls/{call}/unsolved', ['middleware' => 'perm:update-call', 'uses' => 'TenantCallController@markAsUnsolved']);
 
-  // THEN CREATING REPORTS
-
+  // Tenant Level Report Routes
+  $router->get('reports/get/all', ['middleware' => 'perm:read-report', 'uses' => 'TenantReportController@getAll']);
+  $router->post('reports/create', ['middleware' => 'perm:create-report', 'uses' => 'TenantReportController@create']);
 });

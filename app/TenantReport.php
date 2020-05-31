@@ -27,6 +27,6 @@ class TenantReport extends Model
      */
     public function createdBy()
     {
-        return $this->belongsTo('App\TenantUser',  'id', 'created_by');
+        return $this->belongsTo('App\TenantUser');
     }
 }
