@@ -27,6 +27,6 @@ class GlobalCompanyDatabase extends Model
      */
     public function createdBy()
     {
-        return $this->belongsTo('App\GlobalUser');
+        return $this->belongsTo('App\GlobalUser', "global_user_id");
     }
 }

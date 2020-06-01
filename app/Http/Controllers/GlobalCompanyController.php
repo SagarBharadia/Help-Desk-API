@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\GlobalCompanyDatabase;
 use App\Rules\StrongPassword;
+use App\TenantRole;
 use App\TenantUser;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -111,6 +113,55 @@ class GlobalCompanyController extends Controller
     }
 
     // Return whether the above steps were successfully carried out or not.
+    return $response;
+  }
+
+  public function getAll() {
+    return GlobalCompanyDatabase::with('createdBy')->select(["id", "company_name", "global_user_id", "created_at"])->simplePaginate(15);
+  }
+
+  public function get($tenant_id) {
+    // Validating request
+    $validator = Validator::make(['tenant_id' => $tenant_id], [
+      'tenant_id' => 'required|integer'
+    ]);
+
+    if ($validator->fails()) return $validator->errors();
+
+    $tenant = GlobalCompanyDatabase::with('createdBy')->find($tenant_id);
+    if (!$tenant) {
+      $response = response()->json(['message' => 'Tenant not found.'], 404);
+    } else {
+      addConnectionByName($tenant->company_database_name);
+      $masterRole = TenantRole::getByName('master');
+      $masterAccount = TenantUser::where("role_id", "=", $masterRole->id)->first();
+
+      $response = response()->json(['message' => 'Tenant found.', 'tenant' => $tenant, 'master' => $masterAccount], 200);
+    }
+
+    return $response;
+  }
+
+  public function changeSecret($tenant_id) {
+    // Validating request
+    $validator = Validator::make(['tenant_id' => $tenant_id], [
+      'tenant_id' => 'required|integer'
+    ]);
+
+    if ($validator->fails()) return $validator->errors();
+
+    $tenant = GlobalCompanyDatabase::with('createdBy')->find($tenant_id);
+    if (!$tenant) {
+      $response = response()->json(['message' => 'Tenant not found.'], 404);
+    } else {
+      $newSecret = Str::random(64);
+      $helpDeskName = $tenant->company_database_name;
+      $secretFileName = $helpDeskName . "/secret.txt";
+      Storage::delete($secretFileName);
+      Storage::put($secretFileName, $newSecret);
+      $response = response()->json(['message' => 'Secret changed.'], 200);
+    }
+
     return $response;
   }
 }
