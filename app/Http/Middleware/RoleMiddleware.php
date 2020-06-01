@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
@@ -16,10 +17,10 @@ class RoleMiddleware
      */
     public function handle($request, Closure $next, string $role)
     {
-        if($request->user() && $request->user()->role->isRole($role))
+        if(Auth::guard('global_api')->user()->role->isRole($role))
         {
             return $next($request);
         }
-        return response()->json(['message' => 'Not allowed.'], 405);
+        return response()->json(['message' => 'Not allowed.'], 401);
     }
 }

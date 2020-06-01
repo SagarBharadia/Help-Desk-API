@@ -33,7 +33,8 @@ $router->group([
     'role:super'
   ]
 ], function () use ($router) {
-  // Matches /super/api/create/tenant
+  $router->get('check-token', 'GlobalAuthController@checkToken');
+  // Tenant routes
   $router->post('create/tenant', 'GlobalCompanyController@create');
 });
 

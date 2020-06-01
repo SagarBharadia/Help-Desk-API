@@ -93,4 +93,8 @@ class GlobalAuthController extends Controller
 
   }
 
+  public function checkToken() {
+    return response()->json([], 200);
+  }
+
 }
