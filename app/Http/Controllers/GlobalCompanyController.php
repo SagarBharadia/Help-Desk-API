@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class GlobalCompanyController extends Controller
 {
@@ -116,11 +117,13 @@ class GlobalCompanyController extends Controller
     return $response;
   }
 
-  public function getAll() {
+  public function getAll()
+  {
     return GlobalCompanyDatabase::with('createdBy')->select(["id", "company_name", "global_user_id", "created_at"])->simplePaginate(15);
   }
 
-  public function get($tenant_id) {
+  public function get($tenant_id)
+  {
     // Validating request
     $validator = Validator::make(['tenant_id' => $tenant_id], [
       'tenant_id' => 'required|integer'
@@ -142,7 +145,8 @@ class GlobalCompanyController extends Controller
     return $response;
   }
 
-  public function changeSecret($tenant_id) {
+  public function changeSecret($tenant_id)
+  {
     // Validating request
     $validator = Validator::make(['tenant_id' => $tenant_id], [
       'tenant_id' => 'required|integer'
@@ -160,6 +164,49 @@ class GlobalCompanyController extends Controller
       Storage::delete($secretFileName);
       Storage::put($secretFileName, $newSecret);
       $response = response()->json(['message' => 'Secret changed.'], 200);
+    }
+
+    return $response;
+  }
+
+  public function manageTenant($tenant_id)
+  {
+    // Validating request
+    $validator = Validator::make(['tenant_id' => $tenant_id], [
+      'tenant_id' => 'required|integer'
+    ]);
+
+    if ($validator->fails()) return $validator->errors();
+
+    $tenant = GlobalCompanyDatabase::with('createdBy')->find($tenant_id);
+    if (!$tenant) {
+      $response = response()->json(['message' => 'Tenant not found.'], 404);
+    } else {
+      addConnectionByName($tenant->company_database_name);
+      $masterRole = TenantRole::getByName('master');
+      $masterAccount = TenantUser::where('role_id', '=', $masterRole->id)->first();
+
+      $secretRoute = $tenant->company_database_name . "/secret.txt";
+      $secret = Storage::get($secretRoute);
+
+      JWTAuth::getJWTProvider()->setSecret($secret);
+
+      $token = Auth::guard('tenant_api')->login($masterAccount);
+
+      if ($token) {
+        $response = response()->json([
+          'message' => 'Mocking successful.',
+          'token' => $token,
+          'token_type' => 'bearer',
+          'expires_in' => Auth::factory()->getTTL(),
+          'company_subdir' => $tenant->company_url_subdirectory,
+          'company_name' => $tenant->company_name,
+          'user_name' => "SUPER MANAGE"
+        ], 200);
+      } else {
+        $response = reponse()->json(['message' => "Couldn't mock login."], 500);
+      }
+
     }
 
     return $response;

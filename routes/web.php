@@ -39,6 +39,7 @@ $router->group([
   $router->get('tenants/get/all', 'GlobalCompanyController@getAll');
   $router->get('tenants/get/{tenant_id}', 'GlobalCompanyController@get');
   $router->get('tenants/{tenant_id}/change-secret', 'GlobalCompanyController@changeSecret');
+  $router->get('tenants/{tenant_id}/manage', 'GlobalCompanyController@manageTenant');
 });
 
 // Unauthenticated tenant routes
