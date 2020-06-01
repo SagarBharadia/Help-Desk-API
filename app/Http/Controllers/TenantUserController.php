@@ -92,9 +92,6 @@ class TenantUserController extends Controller
     ]);
 
     $masterRole = TenantRole::getByName('master');
-    if ($request->get('role_id') == $masterRole->id) {
-      return response()->json(['role_id' => 'Cannot assign master role.'], 422);
-    }
 
     $user = TenantUser::find($request->get('user_id'));
 
@@ -105,10 +102,16 @@ class TenantUserController extends Controller
     if (empty($user)) {
       $response = response()->json(['message' => 'User not found.'], 404);
     } else {
+      $returnMsg = "User updated.";
       $userActionLog->details = "Updating details for " . $user->first_name . " " . $user->second_name . ". Changed:";
-      if (!empty($request->get('role_id'))) {
+      if (!empty($request->get('role_id')) && $request->get('role_id') != $masterRole->id && !$user->role->isRole('master')) {
         $newRole = TenantRole::find($request->get('role_id'));
-        $userActionLog->details .= " Role[" . $user->role->display_name . "(" . $user->role->name . ") -> " . $newRole->display_name . "(" . $newRole->name . ")]";
+        if ($newRole) {
+          $user->role_id = $newRole->id;
+          $userActionLog->details .= " Role[" . $user->role->display_name . "(" . $user->role->name . ") -> " . $newRole->display_name . "(" . $newRole->name . ")]";
+        }
+      } else {
+        $returnMsg .= " Except role, you can't change role to or from Master.";
       }
       if (!empty($request->get('first_name'))) {
         $userActionLog->details .= " First Name[" . $user->first_name . " -> " . $request->get('first_name') . "]";
@@ -130,7 +133,7 @@ class TenantUserController extends Controller
       if ($user->save()) {
         if ($userActionLog->log_action_id) $userActionLog->save();
 
-        $response = response()->json(['message' => 'User updated.'], 200);
+        $response = response()->json(['message' => $returnMsg], 200);
       } else {
         $response = response()->json(['message' => 'User updates could not be saved.'], 500);
       }
@@ -163,7 +166,7 @@ class TenantUserController extends Controller
       $response = response()->json(['message' => 'User not found.'], 404);
     } else {
 
-      if($user->role->isRole('master')) {
+      if ($user->role->isRole('master')) {
         return response()->json(['message' => 'Cannot deactivate account with master role.'], 422);
       }
 
