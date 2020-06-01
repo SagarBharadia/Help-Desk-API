@@ -35,7 +35,8 @@ $router->group([
 ], function () use ($router) {
   $router->get('check-token', 'GlobalAuthController@checkToken');
   // Tenant routes
-  $router->post('create/tenant', 'GlobalCompanyController@create');
+  $router->post('tenant/create', 'GlobalCompanyController@create');
+//  $router->get('')
 });
 
 // Unauthenticated tenant routes
